@@ -1,0 +1,555 @@
+/* Import modern font */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+.lesson-environment {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #f5f5f5;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  overflow: hidden;
+}
+
+/* Left Panel - Materials */
+.lesson-materials-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #e8e8e8;
+  border-right: 1px solid #d0d0d0;
+  overflow: hidden;
+}
+
+.materials-header {
+  padding: 20px 24px;
+  background: #e8e8e8;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #006236;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s ease;
+}
+
+.back-btn:hover {
+  color: #004d2a;
+}
+
+.lesson-topic {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* Tabs */
+.materials-tabs {
+  display: flex;
+  padding: 0 24px;
+  background: #e8e8e8;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.tab-btn {
+  padding: 16px 24px;
+  background: none;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.tab-btn:hover {
+  color: #1e293b;
+}
+
+.tab-btn.active {
+  color: #006236;
+  font-weight: 600;
+}
+
+.tab-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #006236;
+  border-radius: 3px 3px 0 0;
+}
+
+/* Content */
+.materials-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.content-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 20px 0;
+}
+
+.teacher-only-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(0, 98, 54, 0.1);
+  border: 1px solid #006236;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #006236;
+}
+
+.badge-icon {
+  font-size: 16px;
+}
+
+.content-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.content-item {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.item-bullet {
+  font-weight: 700;
+  color: #006236;
+  min-width: 24px;
+}
+
+.item-text {
+  font-size: 14px;
+  color: #1e293b;
+  line-height: 1.5;
+}
+
+.exercise-note {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+}
+
+.exercise-note p {
+  margin: 0;
+  font-size: 13px;
+  color: #92400e;
+}
+
+.homework-visibility {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 12px 16px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1e40af;
+}
+
+.visibility-icon {
+  font-size: 16px;
+}
+
+/* Right Panel - Video & Chat */
+.lesson-video-panel {
+  width: 400px;
+  min-width: 400px;
+  display: flex;
+  flex-direction: column;
+  background: #d0d0d0;
+}
+
+/* Timer */
+.lesson-timer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #006236;
+  color: #ffffff;
+}
+
+.timer-label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.timer-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Video Section */
+.video-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 12px;
+}
+
+.main-video-container {
+  flex: 1;
+  min-height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.video-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+}
+
+.tutor-video {
+  background: url("/placeholder-tutor.jpg") center/cover no-repeat,
+    linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+}
+
+.placeholder-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+}
+
+.placeholder-avatar.small {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+}
+
+.participant-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px 10px;
+  border-radius: 4px;
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+}
+
+/* Student Videos */
+.student-videos {
+  display: flex;
+  gap: 8px;
+}
+
+.video-tile {
+  flex: 1;
+  aspect-ratio: 4/3;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  background: #2d3748;
+}
+
+.video-tile.camera-on .video-placeholder {
+  display: none;
+}
+
+.user-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Mirror effect */
+}
+
+/* Video Controls */
+.video-controls {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.control-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-btn.active {
+  background: #4a5568;
+  color: #ffffff;
+}
+
+.control-btn.inactive {
+  background: #64748b;
+  color: #ffffff;
+}
+
+.control-btn:hover {
+  transform: scale(1.05);
+}
+
+.control-btn.leave-btn {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.control-btn.leave-btn:hover {
+  background: #dc2626;
+}
+
+/* Chat Section */
+.chat-section {
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 12px 12px 0 0;
+  margin: 0 12px;
+  overflow: hidden;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-message {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+}
+
+.chat-message.own {
+  align-self: flex-end;
+}
+
+.chat-message.other {
+  align-self: flex-start;
+}
+
+.message-sender {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 4px;
+  margin-left: 8px;
+}
+
+.message-bubble {
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.chat-message.own .message-bubble {
+  background: #006236;
+  color: #ffffff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-message.other .message-bubble {
+  background: #64748b;
+  color: #ffffff;
+  border-bottom-left-radius: 4px;
+}
+
+/* Chat Input */
+.chat-input-form {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.chat-input:focus {
+  border-color: #006236;
+}
+
+.chat-input::placeholder {
+  color: #94a3b8;
+}
+
+.send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: #006236;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.send-btn:hover {
+  background: #004d2a;
+  transform: scale(1.05);
+}
+
+/* Scrollbar styling */
+.materials-content::-webkit-scrollbar,
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.materials-content::-webkit-scrollbar-track,
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.materials-content::-webkit-scrollbar-thumb,
+.chat-messages::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 1024px) {
+  .lesson-video-panel {
+    width: 350px;
+    min-width: 350px;
+  }
+
+  .placeholder-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .lesson-environment {
+    flex-direction: column;
+  }
+
+  .lesson-materials-panel {
+    flex: none;
+    height: 50vh;
+  }
+
+  .lesson-video-panel {
+    width: 100%;
+    min-width: 100%;
+    height: 50vh;
+  }
+
+  .video-section {
+    padding: 8px;
+  }
+
+  .main-video-container {
+    min-height: 120px;
+  }
+
+  .chat-section {
+    height: 180px;
+    margin: 0 8px;
+  }
+
+  .materials-tabs {
+    overflow-x: auto;
+    padding: 0 16px;
+  }
+
+  .tab-btn {
+    padding: 12px 16px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .materials-content {
+    padding: 16px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .lesson-topic {
+    font-size: 22px;
+  }
+
+  .content-title {
+    font-size: 20px;
+  }
+
+  .student-videos {
+    flex-wrap: wrap;
+  }
+
+  .video-tile {
+    flex: 1 1 45%;
+  }
+
+  .control-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}

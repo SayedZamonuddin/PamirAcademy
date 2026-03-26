@@ -1,0 +1,457 @@
+/*Phone*/
+@media screen and (max-width: 600px){
+    .products-white-banner-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        background-color: rgba(217,217,217,0.9);
+        height: 60px;
+        width: 100%;
+        border-radius: 10px;
+    }
+    
+    /*Products*/
+    .product-main-container-css{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        background-color: rgba(217,217,217,1);
+        width: 100%;
+        height: 530px;
+        border-radius: 10px;
+        margin-top: 50px;
+    }
+    .product-name-moving-buttons-container-css {
+        position: relative; 
+    }
+    
+    /*product elements*/
+    .product-elements-container-css{
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        height: 450px;
+        
+    }
+    /*product img*/
+    .moving-left-css,
+    .moving-right-css{
+       display: none;
+    }
+    .product-container-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 300px;
+        height: 200px;
+        
+    }
+    .product-img-container-css{
+        width: 180px;
+        height: 130px;
+        
+    }
+    /*cart and refernace*/
+    .cart-referance-container-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 300px;
+        height: 150px;
+        padding-bottom: 0px;
+    }
+    /*Location*/
+    .product-location-container-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 300px;
+        height: 40px;
+        margin-bottom: 0px;
+    }
+    .add-to-cart-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        color: white;
+        background-color: rgb(0,98,54);
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-size: 16px;
+        border: none;
+        width: fit-content;
+        margin-top: 0px;
+        cursor: pointer;
+    }
+    .students-referances-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        color: white;
+        background-color: rgb(0,98,54);
+        padding: 0px 12px;
+        border-radius: 30px;
+        font-size: 14px;
+        margin-top: 15px;
+        border: none;
+        width: fit-content;
+        cursor: pointer;
+    }
+    /*Cart Container*/
+    .cart-conatiner-css{
+        display: flex;
+        flex-direction: row !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 90%;
+        height: 100px;
+        column-gap:20px;
+        padding-bottom: 0px;
+    }
+    .product-price-css{
+        background-color: white;
+        color: rgb(0,98,54);
+        padding: 4px 8px;
+        border: none;
+        font-size: 15px;
+        border-radius: 5px;
+    }
+    .cart-img-container-css{
+        position: relative;
+        width: 70px;
+        height: 50px;
+        
+    }
+    .total-cart-count-css{
+        display: none;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(197,34,31);
+        width: 18px;
+        height: 18px;
+        border-radius: 15px;
+        color: white;
+        font-size: 13px;
+        bottom: 0px;
+        right: 20px;
+        position: absolute;
+        z-index: 3;
+    }
+    .product-pay-css{
+        display: flex;
+        justify-content: center;
+        flex-direction: row;
+        align-items: center;
+        color: white;
+        background-color: rgb(0,0,0);
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 15px;
+    }
+    /*Referance box*/
+    .students-references-main-container-css{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        width: 300px;
+        height: 400px;
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 10px;
+        margin-top: 20px;
+        position: absolute;
+        z-index: 100;
+    }
+    .cancel-student-referral-box-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 30px;
+        height: 30px;
+        background-color: rgb(0,98,54);
+        color: white;
+        border-radius: 15px;
+        border: none;
+        font-size: 20px;
+        margin-top: -10px;
+        margin-right: -300px;
+        cursor: pointer;
+    }
+    .student-reference-message-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: yellow;
+        width: 280px;
+        text-align: center;
+        font-size: 14px;
+        font-style: italic;
+        line-height: 20px;
+    }
+    .referral-email-input-css,
+    .whatsapp-telegram-input-css{
+        width: 250px;
+        height: 30px;
+        border-radius: 15px;
+        border: none;
+        margin-top: 20px;
+        padding-left: 10px;
+    }
+}
+
+/*Tablet*/
+@media screen and (min-width: 601px) and (max-width:1024px) {
+    .products-white-banner-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        background-color: rgba(217,217,217,0.9);
+        height: 60px;
+        width: 100%;
+        border-radius: 10px;
+    }
+    
+    /*Products*/
+    .product-main-container-css{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        background-color: rgba(217,217,217,1);
+        width: 100%;
+        height: 530px;
+        border-radius: 10px;
+        margin-top: 50px;
+    }
+    .product-name-moving-buttons-container-css {
+        position: relative; 
+    }
+    
+    /*product elements*/
+    .product-elements-container-css{
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        height: 450px;
+        
+    }
+    /*product img*/
+    .moving-left-css,
+    .moving-right-css{
+       display: none;
+    }
+    .product-container-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 300px;
+        height: 200px;
+        
+    }
+    .product-img-container-css{
+        width: 180px;
+        height: 130px;
+        
+    }
+    /*cart and refernace*/
+    .cart-referance-container-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 300px;
+        height: 150px;
+        padding-bottom: 0px;
+    }
+    /*Location*/
+    .product-location-container-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 300px;
+        height: 40px;
+        margin-bottom: 0px;
+    }
+    .add-to-cart-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        color: white;
+        background-color: rgb(0,98,54);
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-size: 16px;
+        border: none;
+        width: fit-content;
+        margin-top: 0px;
+        cursor: pointer;
+    }
+    .students-referances-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        color: white;
+        background-color: rgb(0,98,54);
+        padding: 0px 12px;
+        border-radius: 30px;
+        font-size: 14px;
+        margin-top: 15px;
+        border: none;
+        width: fit-content;
+        cursor: pointer;
+    }
+    /*Cart Container*/
+    .cart-conatiner-css{
+        display: flex;
+        flex-direction: row !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 90%;
+        height: 100px;
+        column-gap:20px;
+        padding-bottom: 0px;
+    }
+    .product-price-css{
+        background-color: white;
+        color: rgb(0,98,54);
+        padding: 4px 8px;
+        border: none;
+        font-size: 15px;
+        border-radius: 5px;
+    }
+    .cart-img-container-css{
+        position: relative;
+        width: 70px;
+        height: 50px;
+        
+    }
+    .total-cart-count-css{
+        display: none;
+        justify-content: center;
+        align-items: center;
+        background-color: rgb(197,34,31);
+        width: 18px;
+        height: 18px;
+        border-radius: 15px;
+        color: white;
+        font-size: 13px;
+        bottom: 0px;
+        right: 20px;
+        position: absolute;
+        z-index: 3;
+    }
+    .product-pay-css{
+        display: flex;
+        justify-content: center;
+        flex-direction: row;
+        align-items: center;
+        color: white;
+        background-color: rgb(0,0,0);
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        margin-bottom: 15px;
+    }
+    /*Referance box*/
+    .students-references-main-container-css{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        width: 300px;
+        height: 400px;
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 10px;
+        margin-top: 20px;
+        position: absolute;
+        z-index: 100;
+    }
+    .cancel-student-referral-box-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 30px;
+        height: 30px;
+        background-color: rgb(0,98,54);
+        color: white;
+        border-radius: 15px;
+        border: none;
+        font-size: 20px;
+        margin-top: -10px;
+        margin-right: -300px;
+        cursor: pointer;
+    }
+    .student-reference-message-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: yellow;
+        width: 280px;
+        text-align: center;
+        font-size: 14px;
+        font-style: italic;
+        line-height: 20px;
+    }
+    .referral-email-input-css,
+    .whatsapp-telegram-input-css{
+        width: 250px;
+        height: 30px;
+        border-radius: 15px;
+        border: none;
+        margin-top: 20px;
+        padding-left: 10px;
+    }
+    
+
+}
+
+/*Large Screens*/
+@media screen and (min-width: 1441px) {
+    .products-white-banner-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        background-color: rgba(217,217,217,0.9);
+        height: 60px;
+        width: 100%;
+        border-radius: 10px;
+    }
+     /*Products*/
+     .product-main-container-css{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        background-color: rgba(217,217,217,1);
+        width: 100%;
+        height: 600px;
+        border-radius: 10px;
+        margin-top: 50px;
+    }
+    /*product elements*/
+    .product-elements-container-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 450px;
+    }
+    
+
+}

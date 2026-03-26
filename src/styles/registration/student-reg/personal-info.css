@@ -1,0 +1,426 @@
+/* Import modern font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Steps Container */
+.steps-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 100px;
+    width: 100%;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 24px;
+}
+
+.main-container-steps {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 50px;
+}
+
+.step-personal-info-container,
+.step-subject-container,
+.step-exam-container,
+.step-payment-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.step-personal-info-text,
+.step-subject-text,
+.step-exam-text,
+.step-payment-text {
+    color: rgb(217, 217, 217);
+    font-weight: bold;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.step-color-personal-info {
+    width: 50px;
+    height: 5px;
+    border-radius: 3px;
+    background-color: rgba(0, 98, 54);
+}
+
+.step-color-subject,
+.step-color-exam,
+.step-color-payment {
+    width: 50px;
+    height: 5px;
+    border-radius: 3px;
+    background-color: rgb(217, 217, 217);
+}
+
+/* Form Container */
+.personal-info-main-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 900px;
+    margin: 50px auto 0;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    padding: 48px 40px;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px rgba(0, 98, 54, 0.08);
+    gap: 32px;
+}
+
+/* Header Section */
+.form-header-section {
+    text-align: center;
+    margin-bottom: 8px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid rgba(0, 98, 54, 0.1);
+}
+
+.form-header-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.form-header-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #006236;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+}
+
+.form-header-subtitle {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 16px;
+    color: #64748b;
+    margin: 0;
+    font-weight: 400;
+}
+
+/* Form Sections */
+.form-section {
+    background: #ffffff;
+    padding: 28px 24px;
+    border-radius: 16px;
+    border: 1px solid rgba(0, 98, 54, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 98, 54, 0.04);
+}
+
+.form-section-secondary {
+    background: #f8fafc;
+    border-color: rgba(0, 98, 54, 0.05);
+}
+
+.form-section-title {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #006236;
+    margin: 0 0 24px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(0, 98, 54, 0.1);
+}
+
+.form-section-title-secondary {
+    color: #64748b;
+    border-bottom-color: rgba(0, 98, 54, 0.05);
+}
+
+/* Form Rows */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 0;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-field-full {
+    grid-column: 1 / -1;
+}
+
+/* Labels */
+.form-label {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+}
+
+.required-asterisk {
+    color: #ef4444;
+    font-weight: 700;
+    margin-left: 2px;
+    font-size: 16px;
+}
+
+/* Input Fields */
+.form-input,
+.form-select {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #1e293b;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.form-input::placeholder {
+    color: #94a3b8;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #006236;
+    box-shadow: 0 0 0 3px rgba(0, 98, 54, 0.1);
+    background-color: #ffffff;
+}
+
+.form-input:hover,
+.form-select:hover {
+    border-color: #cbd5e1;
+}
+
+.form-date-input {
+    color: #1e293b;
+    cursor: pointer;
+}
+
+.form-date-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+}
+
+.form-date-input::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Select Dropdown */
+.form-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23006236' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 18px center;
+    padding-right: 42px;
+}
+
+.form-select option {
+    padding: 12px;
+    color: #1e293b;
+    background-color: #ffffff;
+}
+
+.form-select option:hover {
+    background-color: #f1f5f9;
+}
+
+/* Email Verification */
+.email-verification-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.verification-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.verification-code-input {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    padding: 10px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    width: 180px;
+    transition: all 0.2s ease;
+}
+
+.verification-code-input:focus {
+    outline: none;
+    border-color: #006236;
+    box-shadow: 0 0 0 3px rgba(0, 98, 54, 0.1);
+}
+
+.verify-button {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #006236 0%, #004d2a 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.verify-button:hover {
+    background: linear-gradient(135deg, #004d2a 0%, #003d22 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 98, 54, 0.2);
+}
+
+.verify-button:active {
+    transform: translateY(0);
+}
+
+.verification-status {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #10b981;
+    margin-top: 8px;
+}
+
+/* Photo Upload */
+.photo-upload-container {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    justify-content: center;
+    padding: 20px;
+}
+
+.upload-icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 20px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    transition: all 0.2s ease;
+    background-color: #f8fafc;
+}
+
+.upload-icon-container:hover {
+    border-color: #006236;
+    background-color: #f1f5f9;
+    transform: translateY(-2px);
+}
+
+.upload-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 8px;
+}
+
+.upload-photo-text {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    margin: 0;
+}
+
+.display-photo-container {
+    width: 160px;
+    height: 160px;
+    border: 3px solid #006236;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 98, 54, 0.15);
+}
+
+.display-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Button Container */
+.personal-info-main-container .previous-next-container-css {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid rgba(0, 98, 54, 0.1);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .personal-info-main-container {
+        padding: 32px 24px;
+        margin-top: 30px;
+        gap: 24px;
+    }
+
+    .form-header-title {
+        font-size: 24px;
+    }
+
+    .form-header-subtitle {
+        font-size: 14px;
+    }
+
+    .form-section {
+        padding: 20px 16px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .form-input,
+    .form-select {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .photo-upload-container {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .verification-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .verification-code-input {
+        width: 100%;
+    }
+
+    .steps-form-container {
+        padding: 0 16px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .personal-info-main-container {
+        padding: 24px 16px;
+        border-radius: 16px;
+    }
+
+    .form-header-icon {
+        font-size: 36px;
+    }
+
+    .form-header-title {
+        font-size: 20px;
+    }
+
+    .form-section-title {
+        font-size: 16px;
+    }
+}

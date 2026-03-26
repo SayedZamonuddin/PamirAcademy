@@ -1,0 +1,71 @@
+/*Footer*/
+.footer-main-container-css{
+    width: 100%;
+    background-color: rgba(3,3,3);
+    height: 300px;
+    margin-top: 100px;
+    bottom: 0;
+    left: 0;
+   
+}
+.about-contact-location-container-css{
+    display: flex;
+    justify-content: space-evenly;
+    height: 150px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.follow-us-container-main-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+.about-container-css,
+.contact-container-css,
+.location-container-css{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    
+    
+}
+.follow-us-container-css{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 600px;
+}
+
+.about-css,
+.contact-css,
+.location-css{
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.about-css:hover,
+.contact-css:hover,
+.location-css:hover{
+  text-decoration: underline;
+}
+
+.follow-us-css{
+    color: white;
+}
+.follow-us-img-css{
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+.follow-us-img-tiktok-css{
+    width: 39px;
+    height: 39px;
+    cursor: pointer;
+}
+.follow-us-img-youtube-css{
+    width: 40px;
+    height: 30px;
+    cursor: pointer;
+}

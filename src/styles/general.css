@@ -1,0 +1,326 @@
+/*Body*/
+body {
+  background-color: rgb(185, 185, 185);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+/*Logo, login, and Apply Now*/
+.logo-login-container-css {
+  display: flex;
+  justify-content: space-between;
+  border: 1px redsolid;
+  margin: 0;
+  padding: 0;
+}
+.logo-container-css {
+  width: 200px;
+  height: 100px;
+  margin-left: 100px;
+  border: 1px blacksolid;
+}
+.pamir-academy-logo {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.login-apply-now-container-css {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 240px;
+  border: 1px yellowsolid;
+  margin-right: 50px;
+}
+.login-gray-css,
+.apply-now-gray-css {
+  background-color: rgb(143, 146, 145);
+  color: white;
+  border: none;
+  padding: 10px 15px 10px 15px;
+  border-radius: 25px;
+  cursor: pointer;
+  min-width: 100px;
+  text-align: center;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.login-css,
+.apply-now-css {
+  background-color: rgb(0, 98, 54);
+  color: white;
+  border: none;
+  padding: 10px 15px 10px 15px;
+  border-radius: 25px;
+  cursor: pointer;
+  min-width: 100px;
+  text-align: center;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.login-apply-background-black-css {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+}
+.login-apply-background-gray-css {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(217, 217, 217, 1);
+  width: 600px;
+  height: 500px;
+  border-radius: 30px;
+}
+.apply-background-gray-css {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(217, 217, 217, 1);
+  width: 600px;
+  height: 550px;
+  border-radius: 30px;
+}
+.login-apply-x-cancel-css {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(0, 98, 54);
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  color: white;
+  margin-top: -30px;
+  margin-right: -600px;
+  cursor: pointer;
+}
+.apply-x-cancel-css {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(0, 98, 54);
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  color: white;
+  margin-top: -48px;
+  margin-right: -605px;
+  cursor: pointer;
+}
+.login-apply-title-css {
+  font-size: 20px;
+  font-weight: bold;
+}
+.apply-title-css {
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 0px;
+}
+.login-apply-compontents-container-css {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-height: 400px;
+  min-height: 400px;
+  border: 1px blacksolid;
+  padding: 0;
+}
+.apply-compontents-container-css {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-height: 450px;
+  min-height: 450px;
+  border: 1px blacksolid;
+  padding-top: -100px;
+}
+.login-apply-email-css,
+.login-apply-password-css {
+  font-size: 13px;
+  font-weight: bold;
+}
+.login-apply-email-input-css,
+.login-apply-password-input-css {
+  width: 435px;
+  height: 30px;
+  border-radius: 20px;
+  border: rgba(155, 140, 140, 0.6) 1px solid;
+  padding-left: 10px;
+}
+.login-apply-attention-container-css {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 30px;
+}
+.attention-icon-css {
+  margin-right: 5px;
+  margin-top: 2px;
+  width: 20px;
+  height: 20px;
+}
+.login-apply-attention-css {
+  font-size: 9px;
+  color: rgb(197, 34, 31);
+  font-style: italic;
+}
+.login-apply-button-css {
+  width: 450px;
+  height: 30px;
+  border-radius: 15px;
+  background-color: rgb(0, 98, 54);
+  color: white;
+  border: none;
+  margin-top: 5px;
+  cursor: pointer;
+}
+
+.login-apply-creat-an-account-container-css,
+.login-apply-need-help-container-css {
+  display: flex;
+  margin: 0;
+}
+.login-apply-create-an-account-css,
+.login-apply-need-help-css {
+  color: rgb(125, 128, 127);
+  font-size: 18px;
+}
+
+.login-apply-need-help-container-css {
+  margin-top: -20px;
+}
+.login-apply-sign-up-css,
+.login-apply-contact-us-css {
+  color: rgb(0, 98, 54);
+  font-size: 18px;
+  margin-left: 2px;
+  cursor: pointer;
+}
+.login-apply-sign-up-css:hover,
+.login-apply-contact-us-css:hover {
+  text-decoration: underline;
+}
+/*Students Teachers Statistics*/
+.students-teachers-container-css {
+  background-color: rgb(0, 98, 54);
+  height: 200px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  border-radius: 20px;
+  margin-top: 100px;
+}
+.countries-container-css,
+.teachers-container-css,
+.students-container-css {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.students-number-css,
+.teachers-number-css,
+.countries-number-css {
+  color: white;
+  font-size: 55px;
+  margin: 0;
+}
+
+.countries-name-css,
+.teachers-name-css,
+.students-name-css {
+  color: rgb(167, 167, 167);
+  font-size: 15px;
+  font-style: italic;
+  margin-top: 10px;
+}
+
+/*Main body without logo and apply*/
+.main-body-without-logo-apply-css {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.inside-main-body-without-logo-apply-css {
+  width: 1055px;
+  height: auto;
+}
+
+/*Search*/
+.search-container-css {
+  display: flex;
+  justify-content: center;
+  border: 1px orangesolid;
+  margin-top: 50px;
+}
+.search-css {
+  width: 500px;
+  border: none;
+  height: 32px;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  padding-left: 20px;
+}
+input:focus {
+  outline: rgb(0, 98, 54) 1px solid;
+}
+
+.search-icon-css {
+  width: 50px;
+  height: 32px;
+  border: none;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  background-color: white;
+  border-left: rgb(0, 98, 54) 1px solid;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.search-img-css {
+  width: 25px;
+  height: 22px;
+}
+
+/*Navbar*/
+.header-css {
+  border: 1px redsolid;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 50px;
+  margin-top: 50px;
+  padding-left: 400px;
+}
+.header-text-css {
+  color: rgb(0, 98, 54);
+  text-decoration: none;
+  font-size: 15px;
+}
+.header-text-css:hover {
+  text-decoration: underline;
+}
+.icon-text-container-css {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+.navbar-icons-css {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}

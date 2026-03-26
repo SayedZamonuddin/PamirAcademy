@@ -1,0 +1,344 @@
+
+/*Products Title*/
+.title-products-css{
+    position: relative;
+    margin-top: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+   
+}
+.products-white-banner-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    background-color: rgba(217,217,217,0.9);
+    height: 60px;
+    width: 1055px;
+    border-radius: 10px;
+}
+.products-text-css{
+    color: rgb(0,98,54);
+    font-size: 30px;   
+}
+
+/*Products*/
+.product-main-container-css{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: rgba(217,217,217,1);
+    width: 1055px;
+    height: 400px;
+    border-radius: 10px;
+    margin-top: 20px;
+    
+}
+.product-name-moving-buttons-container-css{
+    display: flex;
+    align-items: center;
+}
+.product-name-css{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(0,0,0);
+    color: white;
+    border-radius: 4px;
+    padding: 10px 20px;
+    width: fit-content;
+    margin-right: 40px;
+    margin-left: 40px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.moving-left-css,
+.moving-right-css{
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+/*product elements*/
+.product-elements-container-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1055px;
+    height: 300px;
+    
+}
+.cart-referance-container-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 300px;
+    padding-bottom: 70px;
+    
+}
+/*Location*/
+.product-location-container-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 300px;
+    height: 40px;
+    margin-bottom: 30px;
+}
+.location-country-css{
+    display: flex;
+    color: rgb(0,98,54);
+    
+}
+.location-icon-css{
+    width: 40px;
+    height: 40px;
+    margin-right: 5px;
+}
+.add-to-cart-count-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(197,34,31);
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    top: -30px;
+    left: 85px;
+    position: absolute;
+   
+}
+/* Wrapper to hold the text and counter properly */
+.add-to-cart-content {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Ensures spacing without affecting padding */
+    position: relative;
+}
+
+.add-to-cart-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    color: white;
+    background-color: rgb(0,98,54);
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 16px;
+    margin-top: 20px;
+    border: none;
+    width: fit-content;
+    cursor: pointer;
+}
+
+.students-referances-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    color: white;
+    background-color: rgb(0,98,54);
+    padding: 0px 15px;
+    border-radius: 30px;
+    font-size: 16px;
+    margin-top: 15px;
+    border: none;
+    width: fit-content;
+    cursor: pointer;
+}
+.student-referance-count-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(0,0,0);
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    margin-right: 10px;
+}
+/*product price*/
+.product-container-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 300px;
+    height: 300px;
+    
+}
+.product-img-container-css{
+    width: 300px;
+    height: 300px;
+    
+}
+.product-img-css{
+    width: 100%;
+    height: 90%;
+    border: 1px solid rgb(0,98,54);
+    border-radius: 10px;
+}
+.product-point-container-css{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 200px;
+    height: 20px;
+}
+.product-point-css{
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: rgb(0,98,54);
+}
+.product-point-css.active{
+    background-color: white;
+    border: 1px solid rgb(0,98,54);
+}
+/*Cart*/
+.cart-conatiner-css{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    width: 300px;
+    height: 300px;
+    padding-bottom: 70px;
+}
+.product-price-css{
+    background-color: white;
+    color: rgb(0,98,54);
+    padding: 5px 10px;
+    border: none;
+    font-size: 30px;
+    border-radius: 5px;
+}
+.cart-img-container-css{
+    position: relative;
+    width: 100px;
+    height: 80px;
+    
+}
+.total-cart-count-css{
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(197,34,31);
+    width: 25px;
+    height: 25px;
+    border-radius: 15px;
+    color: white;
+    font-size: 13px;
+    bottom: 10px;
+    right: 28px;
+    position: absolute;
+    z-index: 3;
+}
+.cart-img-css{
+    width: 100%;
+    height: 100%;
+}
+.product-pay-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background-color: rgb(0,0,0);
+    padding: 5px 15px;
+    border-radius: 30px;
+    font-size: 25px;
+    margin-top: 20px;
+    margin-left: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/*Students Referral*/
+.product-name-moving-buttons-container-css {
+    position: relative; /* Keep the relative positioning for the absolute positioning of the wrapper */
+}
+.reference-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.students-references-main-container-css{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 600px;
+    height: 400px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 10px;
+    margin-top: 20px;
+    position: absolute;
+    z-index: 100;
+}
+.cancel-student-referral-box-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    background-color: rgb(0,98,54);
+    color: white;
+    border-radius: 15px;
+    border: none;
+    font-size: 20px;
+    margin-top: -10px;
+    margin-right: -600px;
+    cursor: pointer;
+}
+.students-references-text-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 10px;
+    color: rgb(0,98,54);
+    background-color: white;
+    border-radius: 3px;
+}
+.student-reference-message-css{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: yellow;
+    width: 500px;
+    text-align: center;
+    font-size: 14px;
+    font-style: italic;
+}
+.referral-email-input-css,
+.whatsapp-telegram-input-css{
+    width: 300px;
+    height: 30px;
+    border-radius: 15px;
+    border: none;
+    margin-top: 20px;
+    padding-left: 10px;
+}
+.submit-referance-css{
+    padding: 10px 20px;
+    background-color: rgb(0,98,54);
+    color: white;
+    border-radius: 20px;
+    border: none;
+    margin-top: 30px;
+    cursor: pointer;
+}
+
+
+

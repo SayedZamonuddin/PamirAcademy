@@ -1,0 +1,104 @@
+/*Phone*/
+@media screen and (max-width:600px) {
+    .exercise-white-banner-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        background-color: rgba(217,217,217,0.9);
+        height: 60px;
+        width: 100%;
+        border-radius: 10px;
+    }
+    .exercise-text-white-banner-css{
+        display: flex;
+        justify-content: start;
+        align-items: start;
+        text-align: left;
+        background-color: rgba(217,217,217,0.9);
+        height: auto;
+        width: 100%;
+        border-radius: 10px;
+    }
+    .exercise-text-css{
+        color: rgb(0,98,54);
+        font-size: 15px;
+        margin-top: 40px;
+        width: 80%;
+        padding-left: 0px;
+        font-family: Arial, Helvetica, sans-serif;
+        text-align: left;
+        margin-left: 0;
+        tab-size: 1;
+    }
+}
+
+/*Tablet*/
+@media screen and (min-width:601px) and (max-width:1024px) {
+    .exercise-white-banner-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        background-color: rgba(217,217,217,0.9);
+        height: 60px;
+        width: 100%;
+        border-radius: 10px;
+    }
+    .exercise-text-white-banner-css{
+        display: flex;
+        justify-content: start;
+        align-items: start;
+        text-align: left;
+        background-color: rgba(217,217,217,0.9);
+        height: auto;
+        width: 100%;
+        border-radius: 10px;
+    }
+    .exercise-text-css{
+        color: rgb(0,98,54);
+        font-size: 15px;
+        margin-top: 40px;
+        width: 80%;
+        padding-left: 0px;
+        font-family: Arial, Helvetica, sans-serif;
+        text-align: left;
+        margin-left: 0;
+        tab-size: 1;
+    }
+}
+/*Large Screen*/
+@media screen and (min-width:1441px) {
+    .exercise-white-banner-css{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        background-color: rgba(217,217,217,0.9);
+        height: 60px;
+        width: 100%;
+        border-radius: 10px;
+    }
+    .exercise-text-white-banner-css{
+        display: flex;
+        justify-content: start;
+        align-items: start;
+        text-align: left;
+        background-color: rgba(217,217,217,0.9);
+        height: auto;
+        width: 100%;
+        border-radius: 10px;
+    }
+    .exercise-text-css{
+        color: rgb(0,98,54);
+        font-size: 15px;
+        margin-top: 40px;
+        width: 70%;
+        padding-left: 0px;
+        font-family: Arial, Helvetica, sans-serif;
+        text-align: left;
+        margin-left: 0;
+        flex-wrap: wrap;
+    }
+    
+}

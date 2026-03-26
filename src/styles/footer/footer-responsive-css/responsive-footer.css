@@ -1,0 +1,38 @@
+/*Phone*/
+@media screen and (max-width:600px) {
+    .footer-main-container-css{
+        width: 100vw;
+    }
+    .follow-us-container-css{
+        margin-top: 20px;
+        width: 400px;
+    }
+    .follow-us-img-css{
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+    .follow-us-img-tiktok-css{
+        width: 29px;
+        height: 29px;
+        cursor: pointer;
+    }
+    .follow-us-img-youtube-css{
+        width: 30px;
+        height: 20px;
+        cursor: pointer;
+    }
+}
+
+/*Tablet*/
+@media screen and (min-width:601px) and (max-width:1024px){
+    .footer-main-container-css{
+        width: 100vw;
+    }
+}
+/*Large Screen*/
+@media screen and (min-width:1440px){
+    .footer-main-container-css{
+        width: 100vw;
+    }
+}
