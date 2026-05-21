@@ -32,17 +32,16 @@ const SUBJECTS = [
 
 export default function ExamResult() {
   return (
-    <div className="font-['Nunito_Sans'] w-screen min-h-screen flex flex-col bg-[#a7a7a7] overflow-x-hidden">
+    <div className="w-screen min-h-screen flex flex-col bg-surface overflow-x-hidden">
       {/* Header */}
-      <header className="flex items-center justify-between px-[clamp(24px,5vw,80px)] py-4">
-        <div className="h-[60px] flex items-center">
+      <header className="bg-white border-b border-gray-100 shadow-sm px-[clamp(24px,5vw,80px)] py-4">
+        <div className="h-[50px] flex items-center">
           <img
             src="/logo/final_logo.svg"
             alt="Pamir Academy Logo"
             className="h-full w-auto object-contain"
           />
         </div>
-        <button className="bg-[#006236] text-white px-8 py-2.5 rounded-full border-none cursor-pointer tracking-wider">LOGIN</button>
       </header>
 
       {/* Steps */}
@@ -50,8 +49,8 @@ export default function ExamResult() {
         <div className="max-w-[900px] mx-auto flex items-center justify-between gap-4">
           {STEPS.map((step, i) => (
             <div key={step} className="flex flex-col items-center gap-2 flex-1">
-              <span className={`text-[clamp(12px,1.2vw,18px)] whitespace-nowrap ${i===ACTIVE_STEP?"text-[#006236] font-semibold":"text-[#d9d9d9]"}`}>{step}</span>
-              <div className={`h-2.5 w-full max-w-[200px] rounded-full ${i===ACTIVE_STEP?"bg-[#006236]":"bg-[#d9d9d9]"}`}/>
+              <span className={`text-[clamp(12px,1.2vw,18px)] whitespace-nowrap ${i<=ACTIVE_STEP?"text-brand font-semibold":"text-gray-400"}`}>{step}</span>
+              <div className={`h-2.5 w-full max-w-[200px] rounded-full ${i<=ACTIVE_STEP?"bg-brand":"bg-gray-200"}`}/>
             </div>
           ))}
         </div>
@@ -73,7 +72,7 @@ export default function ExamResult() {
               <div key={subject.name} className="w-full">
                 <div className="flex justify-center mb-5">
                   <div className="bg-[#d9d9d9] rounded-[10px] px-12 py-3 min-w-[200px] text-center">
-                    <span className="text-[#006236] text-[clamp(20px,2vw,32px)] font-semibold">{subject.name}</span>
+                    <span className="text-brand text-[clamp(20px,2vw,32px)] font-semibold">{subject.name}</span>
                   </div>
                 </div>
 
@@ -82,34 +81,34 @@ export default function ExamResult() {
                     <div className="flex flex-col items-center gap-3">
                       <ScoreCircle score={subject.score} total={subject.total} percentage={subject.percentage} size="clamp(130px, 14vw, 200px)"/>
                       <div className="bg-[#d9d9d9] rounded-[10px] px-5 py-1">
-                        <span className="text-[#006236] text-[clamp(12px,1.1vw,18px)] font-semibold">{subject.level}</span>
+                        <span className="text-brand text-[clamp(12px,1.1vw,18px)] font-semibold">{subject.level}</span>
                       </div>
                     </div>
-                    <button className="bg-[#006236] text-white px-7 py-2.5 rounded-full border-none cursor-pointer text-[clamp(14px,1.2vw,20px)] tracking-wide whitespace-nowrap">Re-Take</button>
+                    <button className="bg-brand text-white px-7 py-2.5 rounded-full border-none cursor-pointer text-[clamp(14px,1.2vw,20px)] tracking-wide whitespace-nowrap">Re-Take</button>
                   </div>
                 ) : (
                   <div className="flex justify-center mb-6">
-                    <button className="w-[clamp(130px,12vw,180px)] h-[clamp(130px,12vw,180px)] rounded-full bg-[#006236] border-none cursor-pointer flex flex-col items-center justify-center gap-0.5 shadow-lg">
+                    <button className="w-[clamp(130px,12vw,180px)] h-[clamp(130px,12vw,180px)] rounded-full bg-brand border-none cursor-pointer flex flex-col items-center justify-center gap-0.5 shadow-lg">
                       <span className="text-white text-[clamp(28px,3.5vw,52px)] font-bold leading-none tracking-wider">START</span>
                       <span className="text-white text-[clamp(12px,1.2vw,22px)] leading-none">60 Min</span>
                     </button>
                   </div>
                 )}
 
-                {idx < SUBJECTS.length - 1 && <div className="w-full h-1 bg-[#006236] rounded-sm my-4 mb-8"/>}
+                {idx < SUBJECTS.length - 1 && <div className="w-full h-1 bg-brand rounded-sm my-4 mb-8"/>}
               </div>
             ))}
           </div>
 
           {/* Nav */}
           <div className="flex items-center justify-between mt-12">
-            <button className="flex items-center gap-2 bg-[#006236] text-white px-8 py-3.5 rounded-full border-none cursor-pointer tracking-wider"><ChevronLeft/> PREVIOUS</button>
+            <button className="flex items-center gap-2 bg-brand text-white px-8 py-3.5 rounded-full border-none cursor-pointer tracking-wider"><ChevronLeft/> PREVIOUS</button>
             <button className="flex items-center gap-2 bg-[#7d807f] text-white px-8 py-3.5 rounded-full border-none cursor-default tracking-wider">NEXT <ChevronRight/></button>
           </div>
 
           <p className="text-center mt-8">
             <span className="text-[#7d807f]">If You Need Our Help? </span>
-            <a href="#" className="text-[#006236] no-underline">contact us</a>
+            <a href="#" className="text-brand no-underline">contact us</a>
           </p>
         </div>
       </main>

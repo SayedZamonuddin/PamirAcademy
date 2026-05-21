@@ -1,31 +1,11 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../contexts/AuthContext";
+import { getStudentProfile } from "../../../utils/registrationApi";
+import { getStudentDashboard, getAnnouncements } from "../../../utils/panelApi";
 import StudentLayout from "./StudentLayout";
 
-/* ---- Sample Data ---- */
-const STUDENT_NAME = "Ahmad";
-
-const TODAY_CLASSES = [
-  { id: 1, teacher: "Amina Rahimi", subject: "English", level: "Elementary", topic: "Past Simple Tense", time: "9:00 AM" },
-  { id: 2, teacher: "Dariush Karimi", subject: "Math", level: "Intermediate", topic: "Quadratic Equations", time: "11:00 AM" },
-  { id: 3, teacher: "Sarah Nazari", subject: "Physics", level: "Elementary", topic: "Newton's Laws", time: "3:00 PM" },
-];
-
-const TOMORROW_CLASSES = [
-  { id: 4, teacher: "Amina Rahimi", subject: "English", level: "Elementary", topic: "Irregular Verbs", time: "10:00 AM" },
-  { id: 5, teacher: "Dariush Karimi", subject: "Math", level: "Intermediate", topic: "Polynomials", time: "2:00 PM" },
-];
-
-const QUICK_STATS = {
-  subjectsEnrolled: 3,
-  classesThisWeek: 8,
-  currentLevel: "Elementary",
-  groupName: "Group A",
-};
-
-const ANNOUNCEMENTS = [
-  { id: 1, text: "Schedule change: your Thursday English class has moved from 9 AM to 10 AM.", time: "3 hours ago" },
-  { id: 2, text: "New study resources for Physics — Newton's Laws available in your materials section.", time: "1 day ago" },
-];
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 /* ---- SVG Icons ---- */
 const ClockIcon = () => (
@@ -64,12 +44,82 @@ const ChevronRight = () => (
   </svg>
 );
 
+function formatHour(h) {
+  const suffix = h >= 12 ? "PM" : "AM";
+  const display = h > 12 ? h - 12 : h === 0 ? 12 : h;
+  return `${display}:00 ${suffix}`;
+}
+
 export default function StudentDashboard() {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const [firstName, setFirstName] = useState("");
+  const [dashData, setDashData] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await getStudentProfile();
+        if (!cancelled && data?.first_name) setFirstName(data.first_name);
+      } catch { /* fallback below */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [dash, ann] = await Promise.all([
+          getStudentDashboard(),
+          getAnnouncements().catch(() => []),
+        ]);
+        if (!cancelled) {
+          setDashData(dash);
+          setAnnouncements(ann);
+        }
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const displayName = firstName
+    || currentUser?.display_name
+    || currentUser?.email?.split("@")[0]
+    || "Student";
 
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 18 ? "Good afternoon" : "Good evening";
   const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+
+  const todayDow = now.getDay();
+  const tomorrowDow = (todayDow + 1) % 7;
+
+  const schedule = dashData?.schedule || [];
+  const todayClasses = schedule.filter(s => s.day_of_week === todayDow);
+  const tomorrowClasses = schedule.filter(s => s.day_of_week === tomorrowDow);
+
+  const subjectsEnrolled = dashData?.subjects_enrolled ?? 0;
+  const classesThisWeek = dashData?.classes_this_week ?? 0;
+  const groups = dashData?.groups || [];
+  const groupName = groups.length > 0 ? groups[0].name : "—";
+
+  if (loading) {
+    return (
+      <StudentLayout activePage="s-dashboard">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-10 h-10 border-4 border-[#006236] border-t-transparent rounded-full animate-spin" />
+        </div>
+      </StudentLayout>
+    );
+  }
 
   return (
     <StudentLayout activePage="s-dashboard">
@@ -78,10 +128,10 @@ export default function StudentDashboard() {
         {/* Welcome header */}
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-white text-[clamp(24px,3vw,40px)] font-bold m-0">
-              {greeting}, {STUDENT_NAME}
+            <h1 className="text-gray-800 text-[clamp(24px,3vw,40px)] font-bold m-0">
+              {greeting}, {displayName}
             </h1>
-            <p className="text-white/60 text-sm m-0 mt-1">{dateStr}</p>
+            <p className="text-gray-500 text-sm m-0 mt-1">{dateStr}</p>
           </div>
           <button
             onClick={() => navigate("/student/schedule")}
@@ -94,12 +144,12 @@ export default function StudentDashboard() {
         {/* Quick Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { label: "Subjects Enrolled", value: QUICK_STATS.subjectsEnrolled, icon: <BookIcon />, color: "bg-[#006236]" },
-            { label: "Classes This Week", value: QUICK_STATS.classesThisWeek, icon: <CalendarIcon />, color: "bg-blue-500" },
-            { label: "Current Level", value: QUICK_STATS.currentLevel, icon: <LevelIcon />, color: "bg-amber-500" },
-            { label: "My Group", value: QUICK_STATS.groupName, icon: <UsersIcon />, color: "bg-[#006236]" },
+            { label: "Subjects Enrolled", value: subjectsEnrolled, icon: <BookIcon />, color: "bg-[#006236]" },
+            { label: "Classes This Week", value: classesThisWeek, icon: <CalendarIcon />, color: "bg-blue-500" },
+            { label: "Current Level", value: groups[0]?.level || "—", icon: <LevelIcon />, color: "bg-amber-500" },
+            { label: "My Group", value: groupName, icon: <UsersIcon />, color: "bg-[#006236]" },
           ].map((card, i) => (
-            <div key={i} className="bg-[#d9d9d9] rounded-2xl p-[clamp(14px,1.5vw,24px)] flex items-center gap-3">
+            <div key={i} className="bg-white rounded-2xl p-[clamp(14px,1.5vw,24px)] flex items-center gap-3 border border-[#006236]/10">
               <div className={`${card.color} w-11 h-11 rounded-xl flex items-center justify-center text-white shrink-0`}>
                 {card.icon}
               </div>
@@ -112,26 +162,28 @@ export default function StudentDashboard() {
         </div>
 
         {/* Today's Classes */}
-        <div className="bg-[#d9d9d9] rounded-2xl p-[clamp(16px,2vw,28px)]">
+        <div className="bg-white rounded-2xl p-[clamp(16px,2vw,28px)] border border-[#006236]/10">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[#006236] text-[clamp(14px,1.4vw,20px)] font-bold m-0">Today's Classes</h3>
-            <span className="text-gray-500 text-xs">{TODAY_CLASSES.length} sessions</span>
+            <span className="text-gray-500 text-xs">{todayClasses.length} sessions</span>
           </div>
           <div className="flex flex-col gap-3">
-            {TODAY_CLASSES.map((cls) => (
-              <div key={cls.id} className="bg-white rounded-xl px-5 py-3.5 flex items-center justify-between flex-wrap gap-3 hover:bg-[#006236]/5 transition-colors">
+            {todayClasses.length === 0 ? (
+              <p className="text-gray-400 text-sm m-0 py-4 text-center">No classes scheduled for today.</p>
+            ) : todayClasses.map((cls) => (
+              <div key={cls.id} className="bg-[#f4f6f5] rounded-xl px-5 py-3.5 flex items-center justify-between flex-wrap gap-3 hover:bg-[#006236]/5 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#006236] flex items-center justify-center text-white font-bold text-sm shrink-0">
-                    {cls.teacher.split(" ").map(w => w[0]).join("")}
+                    {(cls.counterpart_name || "?").split(" ").map(w => w[0]).join("")}
                   </div>
                   <div>
-                    <p className="text-[#006236] font-semibold text-sm m-0">{cls.subject} — {cls.topic}</p>
-                    <p className="text-gray-400 text-xs m-0">{cls.teacher} · {cls.level}</p>
+                    <p className="text-[#006236] font-semibold text-sm m-0">{cls.subject_name || "Class"} — {cls.level || ""}</p>
+                    <p className="text-gray-400 text-xs m-0">{cls.counterpart_name || "Teacher"}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-[#006236] text-sm font-semibold flex items-center gap-1">
-                    <ClockIcon /> {cls.time}
+                    <ClockIcon /> {formatHour(cls.hour)}
                   </span>
                   <button
                     onClick={() => navigate("/student/live-session")}
@@ -148,24 +200,26 @@ export default function StudentDashboard() {
         {/* Bottom row: Tomorrow + Announcements */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Tomorrow */}
-          <div className="bg-[#d9d9d9] rounded-2xl p-[clamp(16px,2vw,28px)]">
+          <div className="bg-white rounded-2xl p-[clamp(16px,2vw,28px)] border border-[#006236]/10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[#006236] text-[clamp(14px,1.4vw,20px)] font-bold m-0">Tomorrow</h3>
-              <span className="text-gray-500 text-xs">{TOMORROW_CLASSES.length} sessions</span>
+              <span className="text-gray-500 text-xs">{tomorrowClasses.length} sessions</span>
             </div>
             <div className="flex flex-col gap-3">
-              {TOMORROW_CLASSES.map((cls) => (
-                <div key={cls.id} className="bg-white rounded-xl px-5 py-3 flex items-center justify-between flex-wrap gap-3">
+              {tomorrowClasses.length === 0 ? (
+                <p className="text-gray-400 text-sm m-0 py-4 text-center">No classes tomorrow.</p>
+              ) : tomorrowClasses.map((cls) => (
+                <div key={cls.id} className="bg-[#f4f6f5] rounded-xl px-5 py-3 flex items-center justify-between flex-wrap gap-3">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-[#006236]/15 flex items-center justify-center text-[#006236] font-bold text-xs shrink-0">
-                      {cls.teacher.split(" ").map(w => w[0]).join("")}
+                      {(cls.counterpart_name || "?").split(" ").map(w => w[0]).join("")}
                     </div>
                     <div>
-                      <p className="text-[#006236] font-semibold text-sm m-0">{cls.subject} — {cls.topic}</p>
-                      <p className="text-gray-400 text-xs m-0">{cls.teacher}</p>
+                      <p className="text-[#006236] font-semibold text-sm m-0">{cls.subject_name || "Class"} — {cls.level || ""}</p>
+                      <p className="text-gray-400 text-xs m-0">{cls.counterpart_name || "Teacher"}</p>
                     </div>
                   </div>
-                  <span className="text-gray-500 text-xs flex items-center gap-1"><ClockIcon /> {cls.time}</span>
+                  <span className="text-gray-500 text-xs flex items-center gap-1"><ClockIcon /> {formatHour(cls.hour)}</span>
                 </div>
               ))}
             </div>
@@ -178,16 +232,18 @@ export default function StudentDashboard() {
           </div>
 
           {/* Announcements */}
-          <div className="bg-[#d9d9d9] rounded-2xl p-[clamp(16px,2vw,28px)]">
+          <div className="bg-white rounded-2xl p-[clamp(16px,2vw,28px)] border border-[#006236]/10">
             <div className="flex items-center gap-2 mb-4">
               <BellIcon />
               <h3 className="text-[#006236] text-[clamp(14px,1.4vw,20px)] font-bold m-0">Announcements</h3>
             </div>
             <div className="flex flex-col gap-3">
-              {ANNOUNCEMENTS.map((a) => (
-                <div key={a.id} className="bg-white rounded-xl px-5 py-3.5">
-                  <p className="text-[#006236] text-sm m-0 leading-relaxed">{a.text}</p>
-                  <p className="text-gray-400 text-xs m-0 mt-1.5">{a.time}</p>
+              {announcements.length === 0 ? (
+                <p className="text-gray-400 text-sm m-0 py-4 text-center">No announcements yet.</p>
+              ) : announcements.map((a) => (
+                <div key={a.id} className="bg-[#f4f6f5] rounded-xl px-5 py-3.5">
+                  <p className="text-gray-700 text-sm m-0 leading-relaxed">{a.text}</p>
+                  <p className="text-gray-400 text-xs m-0 mt-1.5">{new Date(a.created_at).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>

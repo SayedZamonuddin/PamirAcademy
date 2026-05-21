@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.db import models
 
@@ -147,6 +149,30 @@ class GroupChangeRequest(models.Model):
         return f"Group change: {self.student.email} — {self.current_group.name} → {self.status}"
 
 
+class Course(models.Model):
+    """Stores a full course (units → lessons → blocks) per subject+level."""
+
+    subject = models.ForeignKey(
+        "registration.Subject", on_delete=models.CASCADE, related_name="courses"
+    )
+    level = models.CharField(max_length=20)
+    title = models.CharField(max_length=200, blank=True)
+    description = models.TextField(blank=True)
+    structure = models.JSONField(
+        default=list,
+        help_text="Full units/lessons/blocks tree as JSON",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ["subject", "level"]
+        ordering = ["subject__name", "level"]
+
+    def __str__(self):
+        return f"{self.subject.name}/{self.level}: {self.title or '(untitled)'}"
+
+
 class Message(models.Model):
     sender = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sent_messages"
@@ -163,3 +189,83 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender.email} → {self.receiver.email}: {self.text[:50]}"
+
+
+class Announcement(models.Model):
+    class Audience(models.TextChoices):
+        ALL = "all", "All"
+        STUDENTS = "students", "Students Only"
+        TEACHERS = "teachers", "Teachers Only"
+
+    text = models.TextField()
+    audience = models.CharField(max_length=10, choices=Audience.choices, default=Audience.ALL)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"[{self.audience}] {self.text[:60]}"
+
+
+class Payment(models.Model):
+    class Status(models.TextChoices):
+        PAID = "paid", "Paid"
+        PENDING = "pending", "Pending"
+
+    teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="payments"
+    )
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, related_name="payments_made"
+    )
+    subject = models.ForeignKey(
+        "registration.Subject", on_delete=models.SET_NULL, null=True
+    )
+    level = models.CharField(max_length=30, blank=True)
+    sessions = models.PositiveIntegerField(default=0)
+    rate = models.DecimalField(max_digits=8, decimal_places=2, default=0)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+    method = models.CharField(max_length=50, blank=True)
+    date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date"]
+
+    def __str__(self):
+        return f"Payment #{self.pk} — {self.teacher.email} ${self.amount} ({self.status})"
+
+
+class LiveSession(models.Model):
+    class Status(models.TextChoices):
+        SCHEDULED = "scheduled", "Scheduled"
+        LIVE = "live", "Live"
+        ENDED = "ended", "Ended"
+
+    teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="teacher_sessions"
+    )
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="student_sessions"
+    )
+    subject = models.ForeignKey(
+        "registration.Subject", on_delete=models.SET_NULL, null=True
+    )
+    topic = models.CharField(max_length=200, blank=True)
+    scheduled_at = models.DateTimeField()
+    duration_minutes = models.PositiveIntegerField(default=60)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.SCHEDULED)
+    notes = models.TextField(blank=True)
+    room_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-scheduled_at"]
+
+    def __str__(self):
+        return f"Session: {self.teacher.email} ↔ {self.student.email} — {self.topic} ({self.status})"

@@ -3,16 +3,17 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LoginModal from '../components/LoginModal';
 import ApplyModal from '../components/ApplyModal';
-import '../styles/general.css';
-import '../styles/learn-more.css';
-import '../styles/main-page-responsive-css/responsive-general.css';
-import '../styles/main-page-responsive-css/responsive-learn-more.css';
-import '../styles/footer/footer.css';
-import '../styles/footer/footer-responsive-css/responsive-footer.css';
+
+const ChevronDown = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+  </svg>
+);
 
 const LearnMore = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
+  const [openFaq, setOpenFaq] = useState(null);
 
   const faqs = [
     {
@@ -39,40 +40,50 @@ const LearnMore = () => {
 
   return (
     <div>
-      <Header 
-        onLoginClick={() => setShowLoginModal(true)} 
-        onApplyClick={() => setShowApplyModal(true)} 
+      <Header
+        onLoginClick={() => setShowLoginModal(true)}
+        onApplyClick={() => setShowApplyModal(true)}
       />
-      
+
       {showLoginModal && (
-        <LoginModal 
-          onClose={() => setShowLoginModal(false)} 
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
           onSwitchToApply={() => { setShowLoginModal(false); setShowApplyModal(true); }}
         />
       )}
-      
+
       {showApplyModal && (
-        <ApplyModal 
-          onClose={() => setShowApplyModal(false)} 
+        <ApplyModal
+          onClose={() => setShowApplyModal(false)}
           onSwitchToLogin={() => { setShowApplyModal(false); setShowLoginModal(true); }}
         />
       )}
 
-      <div className="main-body-without-logo-apply-css">
-        <div className="inside-main-body-without-logo-apply-css">
-          {/* Learn more */}
-          <div className="title-learn-more-css">
-            <div className="learn-more-white-banner-css">
-              <p className="learn-more-text-css">Learn More</p>
-            </div>
-          </div>
+      <div className="max-w-[1100px] mx-auto px-5">
+        {/* Page Title */}
+        <div className="mt-16 mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white text-center bg-brand rounded-xl py-4">Learn More</h1>
+        </div>
 
-          {/* FAQ Items */}
+        {/* FAQ Items */}
+        <div className="flex flex-col gap-3">
           {faqs.map((faq, index) => (
-            <details key={index} className="detail-q-css">
-              <summary>{faq.question}</summary>
-              <p className="q-answer-css">{faq.answer}</p>
-            </details>
+            <div key={index} className="bg-white rounded-2xl shadow-card overflow-hidden">
+              <button
+                className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition-colors"
+                onClick={() => setOpenFaq(openFaq === index ? null : index)}
+              >
+                <span className="text-brand font-medium text-base pr-4">{faq.question}</span>
+                <ChevronDown className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform ${openFaq === index ? 'rotate-180' : ''}`} />
+              </button>
+              {openFaq === index && (
+                <div className="px-6 pb-5">
+                  <div className="bg-brand text-white rounded-xl p-4 text-sm leading-relaxed">
+                    {faq.answer}
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </div>
@@ -83,4 +94,3 @@ const LearnMore = () => {
 };
 
 export default LearnMore;
-

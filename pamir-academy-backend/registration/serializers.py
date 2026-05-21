@@ -68,6 +68,12 @@ class ExamSubmitSerializer(serializers.Serializer):
     subject = serializers.CharField(max_length=50)
     level = serializers.ChoiceField(choices=ExamQuestion.Level.choices)
     answers = serializers.DictField(help_text="Question ID → answer")
+    question_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=False,
+        default=None,
+        help_text="IDs of the specific questions the student was shown",
+    )
     time_spent = serializers.IntegerField(min_value=0, default=0)
 
 
@@ -96,3 +102,29 @@ class TeacherExamSubmitSerializer(serializers.Serializer):
     subject = serializers.CharField(max_length=50)
     answers = serializers.DictField(help_text="Question ID → answer")
     time_spent = serializers.IntegerField(min_value=0, default=0)
+
+
+# ──────────────────── Admin Test Builder ────────────────────
+
+class TestBuilderQuestionSerializer(serializers.Serializer):
+    question_text = serializers.CharField(allow_blank=False)
+    instruction = serializers.CharField(required=False, allow_blank=True, default="")
+    question_type = serializers.ChoiceField(choices=ExamQuestion.QuestionType.choices)
+    options = serializers.ListField(
+        child=serializers.CharField(allow_blank=True), required=False, default=list,
+    )
+    correct_answer = serializers.CharField(required=False, allow_blank=True, default="")
+    correct_answers = serializers.ListField(
+        child=serializers.CharField(allow_blank=True), required=False, default=list,
+    )
+    explanation = serializers.CharField(required=False, allow_blank=True, default="")
+
+
+class TestBuilderLevelSerializer(serializers.Serializer):
+    level = serializers.ChoiceField(choices=ExamQuestion.Level.choices)
+    questions = TestBuilderQuestionSerializer(many=True)
+
+
+class TestBuilderPublishSerializer(serializers.Serializer):
+    subject = serializers.CharField(max_length=50)
+    levels = TestBuilderLevelSerializer(many=True)

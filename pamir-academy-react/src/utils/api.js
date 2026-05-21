@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
 
 const TOKEN_KEY = "pamir_tokens";
 
@@ -72,8 +72,19 @@ export async function api(path, options = {}) {
 export async function apiGet(path) {
   const res = await api(path);
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new ApiError(res.status, data.error || data.detail || "Request failed");
+    const raw = await res.text().catch(() => "");
+    let data = {};
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      data = {};
+    }
+    const message =
+      data.error ||
+      data.detail ||
+      (raw && raw.trim()) ||
+      `Request failed (${res.status})`;
+    throw new ApiError(res.status, message, data);
   }
   return res.json();
 }
@@ -84,9 +95,24 @@ export async function apiPost(path, body) {
     method: "POST",
     body: isFormData ? body : JSON.stringify(body),
   });
-  const data = await res.json().catch(() => ({}));
+  const raw = await res.text().catch(() => "");
+  let data = {};
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    data = {};
+  }
   if (!res.ok) {
-    throw new ApiError(res.status, data.error || data.detail || data.email?.[0] || data.password?.[0] || "Request failed");
+    throw new ApiError(
+      res.status,
+      data.error ||
+        data.detail ||
+        data.email?.[0] ||
+        data.password?.[0] ||
+        (raw && raw.trim()) ||
+        `Request failed (${res.status})`,
+      data,
+    );
   }
   return data;
 }
@@ -97,16 +123,49 @@ export async function apiPut(path, body) {
     method: "PUT",
     body: isFormData ? body : JSON.stringify(body),
   });
-  const data = await res.json().catch(() => ({}));
+  const raw = await res.text().catch(() => "");
+  let data = {};
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    data = {};
+  }
   if (!res.ok) {
-    throw new ApiError(res.status, data.error || data.detail || "Request failed");
+    throw new ApiError(
+      res.status,
+      data.error || data.detail || (raw && raw.trim()) || `Request failed (${res.status})`,
+      data,
+    );
+  }
+  return data;
+}
+
+export async function apiPatch(path, body) {
+  const res = await api(path, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+  const raw = await res.text().catch(() => "");
+  let data = {};
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    data = {};
+  }
+  if (!res.ok) {
+    throw new ApiError(
+      res.status,
+      data.error || data.detail || (raw && raw.trim()) || `Request failed (${res.status})`,
+      data,
+    );
   }
   return data;
 }
 
 export class ApiError extends Error {
-  constructor(status, message) {
+  constructor(status, message, data = {}) {
     super(message);
     this.status = status;
+    this.data = data;
   }
 }

@@ -104,17 +104,16 @@ export default function Exam() {
   };
 
   return (
-    <div className="font-['Nunito_Sans'] w-screen min-h-screen flex flex-col bg-[#a7a7a7] overflow-x-hidden">
+    <div className="w-screen min-h-screen flex flex-col bg-surface overflow-x-hidden">
       {/* Header */}
-      <header className="flex items-center justify-between px-[clamp(24px,5vw,80px)] py-4">
-        <div className="h-[60px] flex items-center">
+      <header className="bg-white border-b border-gray-100 shadow-sm px-[clamp(24px,5vw,80px)] py-4">
+        <div className="h-[50px] flex items-center">
           <img
             src="/logo/final_logo.svg"
             alt="Pamir Academy Logo"
             className="h-full w-auto object-contain"
           />
         </div>
-        <button className="bg-[#006236] text-white px-8 py-2.5 rounded-full border-none cursor-pointer tracking-wider">LOGIN</button>
       </header>
 
       {/* Steps */}
@@ -122,8 +121,8 @@ export default function Exam() {
         <div className="max-w-[1000px] mx-auto flex items-center justify-between gap-2 sm:gap-4">
           {STEPS.map((step, i) => (
             <div key={step} className="flex flex-col items-center gap-2 flex-1">
-              <span className={`text-sm sm:text-base whitespace-nowrap ${i === ACTIVE_STEP ? "text-[#006236] font-semibold" : i < ACTIVE_STEP ? "text-[#006236]/60" : "text-[#d9d9d9]"}`}>{step}</span>
-              <div className={`h-2.5 w-full max-w-[200px] rounded-full ${i <= ACTIVE_STEP ? "bg-[#006236]" : "bg-[#d9d9d9]"}`}/>
+              <span className={`text-sm sm:text-base whitespace-nowrap ${i === ACTIVE_STEP ? "text-brand font-semibold" : i < ACTIVE_STEP ? "text-brand/60" : "text-gray-400"}`}>{step}</span>
+              <div className={`h-2.5 w-full max-w-[200px] rounded-full ${i <= ACTIVE_STEP ? "bg-brand" : "bg-gray-200"}`}/>
             </div>
           ))}
         </div>
@@ -134,12 +133,12 @@ export default function Exam() {
         <div className="max-w-[1000px] mx-auto bg-[#d9d9d9]/40 p-6 sm:p-8 md:p-10 rounded-[20px]">
           {/* Title + Timer */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-            <h2 className="text-[#006236] text-lg sm:text-xl md:text-2xl font-bold m-0">
+            <h2 className="text-brand text-lg sm:text-xl md:text-2xl font-bold m-0">
               {subject}: {currentSection.charAt(0).toUpperCase() + currentSection.slice(1)}
             </h2>
             <div className="flex items-center gap-2 sm:gap-3 bg-white px-4 sm:px-5 py-2 sm:py-3 rounded-[10px]">
-              <span className="text-[#006236] text-sm sm:text-base">Time Left:</span>
-              <span className={`font-bold text-base sm:text-lg md:text-xl ${timeLeft < 300 ? "text-red-600" : "text-[#006236]"}`}>
+              <span className="text-brand text-sm sm:text-base">Time Left:</span>
+              <span className={`font-bold text-base sm:text-lg md:text-xl ${timeLeft < 300 ? "text-red-600" : "text-brand"}`}>
                 {formatTime(timeLeft)}
               </span>
             </div>
@@ -150,11 +149,11 @@ export default function Exam() {
             {questions.map((q, index) => (
               <div key={q.id} className="w-full bg-white p-4 sm:p-5 md:p-6 rounded-[10px]">
                 {q.question && (
-                  <div className="mb-4 p-3 sm:p-4 bg-[#006236]/10 rounded-[5px] text-sm sm:text-base text-gray-800">
+                  <div className="mb-4 p-3 sm:p-4 bg-brand/10 rounded-[5px] text-sm sm:text-base text-gray-800">
                     {q.question}
                   </div>
                 )}
-                <p className="text-[#006236] font-bold mb-4 text-sm sm:text-base">
+                <p className="text-brand font-bold mb-4 text-sm sm:text-base">
                   <span>{index + 1}.</span> {q.instruction}
                 </p>
 
@@ -163,10 +162,10 @@ export default function Exam() {
                   <div className="flex flex-col gap-2">
                     {q.options.map((option, oi) => (
                       <button key={oi} onClick={() => handleAnswerChange(q.id, option)}
-                        className={`w-full p-3 text-left rounded-[5px] border-2 border-[#006236] cursor-pointer transition-colors text-sm sm:text-base ${
-                          answers[q.id] === option ? "bg-[#006236]/20" : "bg-white hover:bg-[#006236]/5"
+                        className={`w-full p-3 text-left rounded-[5px] border-2 border-brand cursor-pointer transition-colors text-sm sm:text-base ${
+                          answers[q.id] === option ? "bg-brand/20" : "bg-white hover:bg-brand/5"
                         }`}>
-                        <input type="radio" checked={answers[q.id] === option} onChange={() => {}} className="mr-2 accent-[#006236]"/>
+                        <input type="radio" checked={answers[q.id] === option} onChange={() => {}} className="mr-2 accent-brand"/>
                         <span>{option}</span>
                       </button>
                     ))}
@@ -178,10 +177,10 @@ export default function Exam() {
                   <div className="flex flex-col gap-2">
                     {q.options.map((option, oi) => (
                       <button key={oi} onClick={() => handleCheckboxChange(q.id, option, !(answers[q.id] || []).includes(option))}
-                        className={`w-full p-3 text-left rounded-[5px] border-2 border-[#006236] cursor-pointer transition-colors text-sm sm:text-base ${
-                          (answers[q.id] || []).includes(option) ? "bg-[#006236]/20" : "bg-white hover:bg-[#006236]/5"
+                        className={`w-full p-3 text-left rounded-[5px] border-2 border-brand cursor-pointer transition-colors text-sm sm:text-base ${
+                          (answers[q.id] || []).includes(option) ? "bg-brand/20" : "bg-white hover:bg-brand/5"
                         }`}>
-                        <input type="checkbox" checked={(answers[q.id] || []).includes(option)} onChange={() => {}} className="mr-2 accent-[#006236]"/>
+                        <input type="checkbox" checked={(answers[q.id] || []).includes(option)} onChange={() => {}} className="mr-2 accent-brand"/>
                         <span>{option}</span>
                       </button>
                     ))}
@@ -191,7 +190,7 @@ export default function Exam() {
                 {/* Select */}
                 {q.type === "select" && (
                   <select value={answers[q.id] || ""} onChange={e => handleAnswerChange(q.id, e.target.value)}
-                    className="w-full p-3 rounded-[5px] border-2 border-[#006236] text-sm sm:text-base outline-none focus:ring-2 focus:ring-[#006236]/30 bg-white cursor-pointer">
+                    className="w-full p-3 rounded-[5px] border-2 border-brand text-sm sm:text-base outline-none focus:ring-2 focus:ring-brand/30 bg-white cursor-pointer">
                     <option value="">Select an answer...</option>
                     {q.options.map((option, oi) => <option key={oi} value={option}>{option}</option>)}
                   </select>
@@ -201,7 +200,7 @@ export default function Exam() {
                 {q.type === "text" && (
                   <input type="text" value={answers[q.id] || ""} onChange={e => handleAnswerChange(q.id, e.target.value)}
                     placeholder="Enter your answer..."
-                    className="w-full p-3 rounded-[5px] border-2 border-[#006236] text-sm sm:text-base outline-none focus:ring-2 focus:ring-[#006236]/30"/>
+                    className="w-full p-3 rounded-[5px] border-2 border-brand text-sm sm:text-base outline-none focus:ring-2 focus:ring-brand/30"/>
                 )}
               </div>
             ))}
@@ -210,11 +209,11 @@ export default function Exam() {
           {/* Nav buttons */}
           <div className="flex items-center justify-between mt-8">
             <button onClick={() => navigate("/exam-start")}
-              className="flex items-center gap-2 bg-[#006236] text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-full border-none cursor-pointer tracking-wider text-sm sm:text-base hover:bg-[#004d2a] transition-colors">
+              className="flex items-center gap-2 bg-brand text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-full border-none cursor-pointer tracking-wider text-sm sm:text-base hover:bg-brand-dark transition-colors">
               <ChevronLeft/> PREVIOUS
             </button>
             <button onClick={handleSubmit}
-              className="flex items-center gap-2 bg-[#006236] text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-full border-none cursor-pointer tracking-wider text-sm sm:text-base hover:bg-[#004d2a] transition-colors">
+              className="flex items-center gap-2 bg-brand text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-full border-none cursor-pointer tracking-wider text-sm sm:text-base hover:bg-brand-dark transition-colors">
               SUBMIT <ChevronRight/>
             </button>
           </div>
@@ -222,7 +221,7 @@ export default function Exam() {
 
         <p className="text-center mt-8">
           <span className="text-[#7d807f]">If You Need Our Help? </span>
-          <a href="#" className="text-[#006236] no-underline">contact us</a>
+          <a href="#" className="text-brand no-underline">contact us</a>
         </p>
       </main>
 

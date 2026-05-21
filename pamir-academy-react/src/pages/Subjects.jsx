@@ -3,12 +3,30 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LoginModal from '../components/LoginModal';
 import ApplyModal from '../components/ApplyModal';
-import '../styles/general.css';
-import '../styles/subjects.css';
-import '../styles/main-page-responsive-css/responsive-general.css';
-import '../styles/main-page-responsive-css/responsive-subjects.css';
-import '../styles/footer/footer.css';
-import '../styles/footer/footer-responsive-css/responsive-footer.css';
+
+const ChevronDown = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+  </svg>
+);
+
+const ChevronUp = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+  </svg>
+);
+
+const ChevronLeft = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+  </svg>
+);
+
+const ChevronRight = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+  </svg>
+);
 
 const Subjects = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -101,34 +119,33 @@ const Subjects = () => {
 
   return (
     <div>
-      <Header 
-        onLoginClick={() => setShowLoginModal(true)} 
-        onApplyClick={() => setShowApplyModal(true)} 
+      <Header
+        onLoginClick={() => setShowLoginModal(true)}
+        onApplyClick={() => setShowApplyModal(true)}
       />
-      
+
       {showLoginModal && (
-        <LoginModal 
-          onClose={() => setShowLoginModal(false)} 
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
           onSwitchToApply={() => { setShowLoginModal(false); setShowApplyModal(true); }}
         />
       )}
-      
+
       {showApplyModal && (
-        <ApplyModal 
-          onClose={() => setShowApplyModal(false)} 
+        <ApplyModal
+          onClose={() => setShowApplyModal(false)}
           onSwitchToLogin={() => { setShowApplyModal(false); setShowLoginModal(true); }}
         />
       )}
 
-      <div className="main-body-without-logo-apply-css">
-        <div className="inside-main-body-without-logo-apply-css">
-          {/* Subjects */}
-          <div className="title-subjects-css">
-            <div className="subjects-white-banner-css">
-              <p className="subjects-text-css">Subjects</p>
-            </div>
-          </div>
+      <div className="max-w-[1100px] mx-auto px-5">
+        {/* Page Title */}
+        <div className="mt-16 mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-brand text-center bg-gray-100 rounded-xl py-4">Subjects</h1>
+        </div>
 
+        {/* Subject Accordion */}
+        <div className="flex flex-col gap-4">
           {subjects.map((subjectName) => {
             const videos = subjectData[subjectName];
             const isExpanded = expandedSubjects[subjectName];
@@ -136,69 +153,80 @@ const Subjects = () => {
             const currentVideo = videos[currentVideoIndex];
 
             return (
-              <div 
-                key={subjectName} 
-                className="subject-container-css"
-                style={{ height: isExpanded ? '500px' : '60px' }}
-              >
-                <div className="subject-title-container-css">
-                  <div 
-                    className="left-arrow-container-css left-arrow-container-js"
-                    style={{ display: isExpanded && currentVideoIndex > 0 ? 'inline-block' : 'none' }}
-                    onClick={() => handleVideoNavigation(subjectName, 'left')}
-                  >
+              <div key={subjectName} className="bg-white rounded-2xl shadow-card overflow-hidden transition-all">
+                {/* Subject Header */}
+                <div
+                  className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={() => toggleSubject(subjectName)}
+                >
+                  {/* Left arrow (when expanded) */}
+                  <div className="w-10">
                     {isExpanded && currentVideoIndex > 0 && (
-                      <img className="left-arrow-css left-arrow-js" src="/icons/subjects-icons/moving-buttons/moving-left.png" alt="Previous" />
+                      <button
+                        className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+                        onClick={(e) => { e.stopPropagation(); handleVideoNavigation(subjectName, 'left'); }}
+                      >
+                        <ChevronLeft className="w-4 h-4 text-gray-600" />
+                      </button>
                     )}
                   </div>
-                  <div className="subjects-title-css">{subjectName}</div>
-                  <div 
-                    className="right-arrow-container-css right-arrow-container-js"
-                    style={{ display: isExpanded && currentVideoIndex < videos.length - 1 ? 'inline-block' : 'none' }}
-                    onClick={() => handleVideoNavigation(subjectName, 'right')}
-                  >
-                    {isExpanded && currentVideoIndex < videos.length - 1 && (
-                      <img className="right-arrow-css right-arrow-js" src="/icons/subjects-icons/moving-buttons/moving-right.png" alt="Next" />
+
+                  <span className="text-brand font-semibold text-lg bg-white px-4 py-1 rounded-md border border-gray-100">{subjectName}</span>
+
+                  {/* Right arrow (when expanded) */}
+                  <div className="w-10 flex justify-end">
+                    {isExpanded && currentVideoIndex < videos.length - 1 ? (
+                      <button
+                        className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+                        onClick={(e) => { e.stopPropagation(); handleVideoNavigation(subjectName, 'right'); }}
+                      >
+                        <ChevronRight className="w-4 h-4 text-gray-600" />
+                      </button>
+                    ) : (
+                      isExpanded ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />
                     )}
                   </div>
-                  <img 
-                    className="down-icon-css down-icon-js" 
-                    src={isExpanded ? '/icons/subjects-icons/up.png' : '/icons/subjects-icons/down.png'} 
-                    alt="Toggle Container"
-                    onClick={() => toggleSubject(subjectName)}
-                    style={{ cursor: 'pointer' }}
-                  />
                 </div>
+
+                {/* Expanded Content */}
                 {isExpanded && (
-                  <>
-                    <div className="video-container-css video-container-js">
-                      <iframe 
-                        className="video-css" 
-                        src={currentVideo.videoLink} 
-                        title="YouTube video player" 
-                        frameBorder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                        referrerPolicy="strict-origin-when-cross-origin" 
+                  <div className="px-6 pb-6 flex flex-col items-center gap-4">
+                    {/* Video */}
+                    <div className="w-full max-w-3xl aspect-video rounded-xl overflow-hidden border-2 border-brand">
+                      <iframe
+                        className="w-full h-full"
+                        src={currentVideo.videoLink}
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerPolicy="strict-origin-when-cross-origin"
                         allowFullScreen
                       ></iframe>
                     </div>
-                    <div className="video-title-exercise-css video-title-exercise-js">
-                      <button className="video-title-css">{currentVideo.videoTitle}</button>
-                      <button className="exercise-css">{currentVideo.videoExercise}</button>
+
+                    {/* Title & Exercise buttons */}
+                    <div className="w-full max-w-3xl flex flex-col gap-2">
+                      <button className="w-full text-left pl-4 bg-brand text-white rounded-full h-8 text-sm font-medium">{currentVideo.videoTitle}</button>
+                      <button className="w-full text-left pl-4 bg-brand text-white rounded-full h-8 text-sm font-medium">{currentVideo.videoExercise}</button>
                     </div>
-                    <div className="points-vidoes-container-css points-vidoes-container-js">
+
+                    {/* Video index dots */}
+                    <div className="flex items-center gap-2 flex-wrap justify-center">
                       {videos.map((_, index) => (
-                        <div 
+                        <button
                           key={index}
-                          className={`points-vidoes-css points-vidoes-js ${index === currentVideoIndex ? 'active' : ''}`}
+                          className={`w-6 h-6 rounded-full text-xs font-medium flex items-center justify-center transition-all ${
+                            index === currentVideoIndex
+                              ? 'bg-white text-brand border-2 border-brand scale-110'
+                              : 'bg-brand text-white hover:bg-brand-dark'
+                          }`}
                           onClick={() => setVideoIndexes(prev => ({ ...prev, [subjectName]: index }))}
-                          style={{ cursor: 'pointer' }}
                         >
                           {index + 1}
-                        </div>
+                        </button>
                       ))}
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             );
@@ -212,4 +240,3 @@ const Subjects = () => {
 };
 
 export default Subjects;
-

@@ -1,32 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StudentLayout from "./StudentLayout";
-import { requestScheduleChange } from "../../../utils/panelApi";
+import { getMySchedule, requestScheduleChange } from "../../../utils/panelApi";
 
-/* ---- Data ---- */
-const WEEK_DATES = [
-  { day: "Mon", date: "Mar 16" },
-  { day: "Tue", date: "Mar 17" },
-  { day: "Wed", date: "Mar 18" },
-  { day: "Thu", date: "Mar 19" },
-  { day: "Fri", date: "Mar 20" },
-  { day: "Sat", date: "Mar 21" },
-  { day: "Sun", date: "Mar 22" },
-];
-
+/* ---- Dynamic HOURS (8 AM to 8 PM) ---- */
 const HOURS = Array.from({ length: 13 }, (_, i) => {
   const h = i + 8;
-  return `${h > 12 ? h - 12 : h}:00 ${h >= 12 ? "PM" : "AM"}`;
+  return { label: `${h > 12 ? h - 12 : h}:00 ${h >= 12 ? "PM" : "AM"}`, value: h };
 });
-
-const MY_CLASSES = {
-  "0-1": { subject: "English", teacher: "Amina Rahimi", level: "Elementary" },
-  "0-5": { subject: "Math", teacher: "Dariush Karimi", level: "Intermediate" },
-  "2-1": { subject: "English", teacher: "Amina Rahimi", level: "Elementary" },
-  "2-7": { subject: "Physics", teacher: "Sarah Nazari", level: "Elementary" },
-  "3-3": { subject: "Math", teacher: "Dariush Karimi", level: "Intermediate" },
-  "4-1": { subject: "English", teacher: "Amina Rahimi", level: "Elementary" },
-  "4-5": { subject: "Physics", teacher: "Sarah Nazari", level: "Elementary" },
-};
 
 const SUBJECT_COLORS = {
   English: "bg-[#006236]",
@@ -41,6 +21,22 @@ const CHANGE_REASONS = [
   "Time zone change",
   "Other",
 ];
+
+/* ---- Dynamic week date computation ---- */
+function getWeekDates(weekOffset = 0) {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ...
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7) + weekOffset * 7);
+
+  const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return DAYS.map((day, i) => {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    return { day, date: `${MONTHS[d.getMonth()]} ${d.getDate()}`, fullDate: d };
+  });
+}
 
 /* ---- SVG Icons ---- */
 const ChevronLeft = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>;
@@ -58,18 +54,47 @@ export default function StudentSchedule() {
   const [changeNote, setChangeNote] = useState("");
   const [preferredTime, setPreferredTime] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [schedule, setSchedule] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const totalClasses = Object.keys(MY_CLASSES).length;
+  useEffect(() => {
+    setLoading(true);
+    getMySchedule()
+      .then(data => setSchedule(Array.isArray(data) ? data : data.results || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const weekDates = getWeekDates(weekOffset);
+
+  // Build schedule grid lookup: key = "dayOfWeek-hourIndex"
+  const myClasses = {};
+  schedule.forEach(slot => {
+    if (slot.status === "booked") {
+      const hourIndex = slot.hour - 8; // HOURS starts at hour 8
+      if (hourIndex >= 0 && hourIndex < 13) {
+        const key = `${slot.day_of_week}-${hourIndex}`;
+        myClasses[key] = {
+          id: slot.id,
+          subject: slot.subject_name || "Class",
+          teacher: slot.counterpart_name || "",
+          level: slot.level || "",
+        };
+      }
+    }
+  });
+  const totalClasses = Object.keys(myClasses).length;
 
   const subjectCounts = {};
-  Object.values(MY_CLASSES).forEach(cls => {
+  Object.values(myClasses).forEach(cls => {
     subjectCounts[cls.subject] = (subjectCounts[cls.subject] || 0) + 1;
   });
 
   const openChangeRequest = (key) => {
-    setChangeTarget({ key, ...MY_CLASSES[key] });
+    const cls = myClasses[key];
+    setChangeTarget({ key, ...cls });
     const [di, hi] = key.split("-").map(Number);
-    setPreferredTime(`${WEEK_DATES[di].day} ${HOURS[hi]}`);
+    setPreferredTime(`${weekDates[di]?.day} ${HOURS[hi]?.label}`);
     setShowChangeModal(true);
     setSubmitted(false);
     setChangeReason("");
@@ -78,12 +103,20 @@ export default function StudentSchedule() {
 
   const handleSubmitChange = async () => {
     setSubmitted(true);
-    try { await requestScheduleChange(0, changeReason, preferredTime, changeNote); } catch { /* API may be offline */ }
+    try { await requestScheduleChange(changeTarget.id, changeReason, preferredTime, changeNote); } catch { /* API may be offline */ }
   };
 
   return (
     <StudentLayout activePage="s-schedule">
       <div className="flex-1 p-[clamp(16px,3vw,40px)] overflow-y-auto flex flex-col gap-5">
+
+        {loading && (
+          <div className="flex items-center justify-center py-20">
+            <div className="w-8 h-8 border-4 border-[#006236] border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+
+        {!loading && (<>
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -115,7 +148,7 @@ export default function StudentSchedule() {
         {/* Week navigation */}
         <div className="flex items-center justify-center gap-4">
           <button onClick={() => setWeekOffset(w => w - 1)} className="w-8 h-8 rounded-full bg-[#006236] text-white flex items-center justify-center border-none cursor-pointer hover:bg-[#004d2a] transition-colors"><ChevronLeft/></button>
-          <span className="text-white text-[clamp(16px,1.8vw,22px)] font-semibold">March 16 — 22, 2026</span>
+          <span className="text-white text-[clamp(16px,1.8vw,22px)] font-semibold">{`${weekDates[0]?.date} — ${weekDates[6]?.date}`}</span>
           <button onClick={() => setWeekOffset(w => w + 1)} className="w-8 h-8 rounded-full bg-[#006236] text-white flex items-center justify-center border-none cursor-pointer hover:bg-[#004d2a] transition-colors"><ChevronRight/></button>
         </div>
 
@@ -125,7 +158,7 @@ export default function StudentSchedule() {
             <thead>
               <tr>
                 <th className="p-2 text-[#006236] text-[clamp(11px,1vw,14px)] text-left w-[80px]"><ClockIcon/></th>
-                {WEEK_DATES.map(wd => (
+                {weekDates.map(wd => (
                   <th key={wd.day} className="p-2 text-center">
                     <div className="text-[#006236] text-[clamp(12px,1.1vw,15px)] font-bold">{wd.day}</div>
                     <div className="text-gray-500 text-[clamp(10px,0.9vw,12px)]">{wd.date}</div>
@@ -136,10 +169,10 @@ export default function StudentSchedule() {
             <tbody>
               {HOURS.map((hour, hi) => (
                 <tr key={hi}>
-                  <td className="px-2 py-1 text-[#006236] text-[clamp(10px,0.9vw,13px)] font-semibold whitespace-nowrap">{hour}</td>
-                  {WEEK_DATES.map((_, di) => {
+                  <td className="px-2 py-1 text-[#006236] text-[clamp(10px,0.9vw,13px)] font-semibold whitespace-nowrap">{hour.label}</td>
+                  {weekDates.map((_, di) => {
                     const key = `${di}-${hi}`;
-                    const cls = MY_CLASSES[key];
+                    const cls = myClasses[key];
                     return (
                       <td key={key} className="p-0.5 relative"
                         onMouseEnter={() => setHoveredSlot(key)}
@@ -155,7 +188,7 @@ export default function StudentSchedule() {
                           <div className="absolute z-20 bottom-full left-1/2 -translate-x-1/2 mb-1 bg-[#006236] text-white rounded-lg px-3 py-2 text-xs whitespace-nowrap shadow-lg">
                             <div className="font-bold">{cls.subject} — {cls.level}</div>
                             <div className="text-white/70">{cls.teacher}</div>
-                            <div className="text-white/70">{hour}</div>
+                            <div className="text-white/70">{hour.label}</div>
                             <div className="text-white/50 mt-1 text-[10px]">Click to request change</div>
                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#006236]"/>
                           </div>
@@ -173,12 +206,12 @@ export default function StudentSchedule() {
         <div className="bg-[#d9d9d9] rounded-2xl p-[clamp(16px,2vw,28px)]">
           <h3 className="text-[#006236] text-[clamp(16px,1.6vw,22px)] font-bold m-0 mb-4">This Week's Classes</h3>
           <div className="flex flex-col gap-3">
-            {Object.entries(MY_CLASSES).map(([key, cls]) => {
+            {Object.entries(myClasses).map(([key, cls]) => {
               const [di, hi] = key.split("-").map(Number);
               return (
                 <div key={key} className="bg-white rounded-xl px-5 py-3 flex items-center justify-between flex-wrap gap-3">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full ${SUBJECT_COLORS[cls.subject]} flex items-center justify-center text-white font-bold text-sm`}>
+                    <div className={`w-10 h-10 rounded-full ${SUBJECT_COLORS[cls.subject] || "bg-[#006236]"} flex items-center justify-center text-white font-bold text-sm`}>
                       {cls.subject[0]}
                     </div>
                     <div>
@@ -187,8 +220,8 @@ export default function StudentSchedule() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-[#006236] text-sm font-semibold flex items-center gap-1"><ClockIcon/> {HOURS[hi]}</span>
-                    <span className="text-gray-400 text-xs">{WEEK_DATES[di]?.day}, {WEEK_DATES[di]?.date}</span>
+                    <span className="text-[#006236] text-sm font-semibold flex items-center gap-1"><ClockIcon/> {HOURS[hi]?.label}</span>
+                    <span className="text-gray-400 text-xs">{weekDates[di]?.day}, {weekDates[di]?.date}</span>
                     <button onClick={() => openChangeRequest(key)}
                       className="px-3 py-1.5 rounded-full bg-[#006236]/10 text-[#006236] text-xs font-semibold border-none cursor-pointer hover:bg-[#006236]/20 transition-colors flex items-center gap-1">
                       <EditIcon/> Request Change
@@ -199,6 +232,7 @@ export default function StudentSchedule() {
             })}
           </div>
         </div>
+        </>)}
       </div>
 
       {/* Schedule Change Request Modal */}

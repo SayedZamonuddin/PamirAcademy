@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { saveTeacherSubject } from '../../../utils/registrationApi';
-import '../../../styles/general.css';
-import '../../../styles/registration/reg-as.css';
-import '../../../styles/registration/student-reg/subjects.css';
 
 const TeacherSubjects = () => {
   const navigate = useNavigate();
@@ -24,61 +21,56 @@ const TeacherSubjects = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="logo-login-container-css">
-        <div className="logo-container-css">
-          <a href="/">
-            <img className="pamir-academy-logo" src="/logo/final_logo.svg" alt="Pamir Academy Logo" />
-          </a>
+    <div className="min-h-screen bg-surface">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-100 shadow-sm px-[clamp(24px,5vw,80px)] py-4">
+        <div className="h-[50px] flex items-center">
+          <a href="/"><img src="/logo/final_logo.svg" alt="Pamir Academy Logo" className="h-full w-auto object-contain" /></a>
         </div>
-      </div>
+      </header>
 
-      <div className="main-body-without-logo-apply-css">
-        <div className="inside-main-body-without-logo-apply-css">
-          <div className="steps-form-container w-full max-w-[1000px] mx-auto px-4">
-            <div className="subjects-container">
-              <p className="subjects-question">Which subject do you want to teach?</p>
-              <div className="subjects-grid">
-                {subjects.map((subject) => (
-                  <button
-                    key={subject}
-                    className={`subjects-css ${selectedSubject === subject ? 'active' : ''}`}
-                    onClick={() => setSelectedSubject(subject)}
-                  >
-                    {subject}
-                  </button>
-                ))}
-              </div>
+      {/* Main */}
+      <main className="max-w-[800px] mx-auto px-4 mt-16">
+        <div className="bg-white rounded-2xl shadow-card p-8 sm:p-10">
+          <p className="text-brand text-xl font-bold text-center mb-6">Which subject do you want to teach?</p>
 
-              <div className="previous-next-container-css flex flex-row justify-between items-center gap-4 w-full mt-6">
-                <button className="previous-btn-css" onClick={handlePrevious}>
-                  <div className="previous-icon-container">
-                    <img className="previous-icon" src="/registration-icons/prev-next/previous.png" alt="Previous" />
-                  </div>
-                  <p className="previous-text">PREVIOUS</p>
-                </button>
-                <button
-                  className="next-btn-css next-btn-js"
-                  onClick={handleNext}
-                  disabled={!selectedSubject}
-                  style={{
-                    backgroundColor: selectedSubject ? 'rgb(0,98,54)' : 'gray',
-                    cursor: selectedSubject ? 'pointer' : 'not-allowed'
-                  }}
-                >
-                  <p className="next-text">NEXT</p>
-                  <div className="next-icon-container">
-                    <img className="next-icon" src="/registration-icons/prev-next/next.png" alt="Next" />
-                  </div>
-                </button>
-              </div>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-[600px] mx-auto">
+            {subjects.map((subject) => (
+              <button
+                key={subject}
+                className={`px-5 py-3.5 rounded-full border-2 border-brand transition-all font-medium text-sm text-center ${
+                  selectedSubject === subject
+                    ? 'bg-brand text-white'
+                    : 'bg-white text-brand hover:bg-brand-light'
+                }`}
+                onClick={() => setSelectedSubject(subject)}
+              >
+                {subject}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex justify-between items-center w-full max-w-[600px] mx-auto mt-8">
+            <button
+              className="flex items-center gap-2 bg-brand text-white px-8 py-3 rounded-full border-none cursor-pointer font-medium text-sm hover:bg-brand-dark transition-colors"
+              onClick={handlePrevious}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              PREVIOUS
+            </button>
+            <button
+              className="flex items-center gap-2 bg-brand text-white px-8 py-3 rounded-full border-none cursor-pointer font-medium text-sm hover:bg-brand-dark transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              onClick={handleNext}
+              disabled={!selectedSubject}
+            >
+              NEXT
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
 export default TeacherSubjects;
-

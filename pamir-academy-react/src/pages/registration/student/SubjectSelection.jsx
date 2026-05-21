@@ -1,10 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { saveStudentSubjects } from '../../../utils/registrationApi';
-import '../../../styles/general.css';
-import '../../../styles/registration/reg-as.css';
-import '../../../styles/registration/student-reg/personal-info.css';
-import '../../../styles/registration/student-reg/subjects.css';
 
 const SubjectSelection = () => {
   const navigate = useNavigate();
@@ -13,7 +9,7 @@ const SubjectSelection = () => {
   const subjects = ['English', 'Math', 'Physics', 'Chemistry', 'History', 'Biology'];
 
   const toggleSubject = (subject) => {
-    setSelectedSubjects(prev => 
+    setSelectedSubjects(prev =>
       prev.includes(subject)
         ? prev.filter(s => s !== subject)
         : [...prev, subject]
@@ -33,86 +29,74 @@ const SubjectSelection = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      <div className="logo-login-container-css">
-        <div className="logo-container-css">
-          <a href="/">
-            <img className="pamir-academy-logo" src="/logo/final_logo.svg" alt="Pamir Academy Logo" />
-          </a>
+    <div className="min-h-screen bg-surface">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-100 shadow-sm px-[clamp(24px,5vw,80px)] py-4">
+        <div className="h-[50px] flex items-center">
+          <a href="/"><img src="/logo/final_logo.svg" alt="Pamir Academy Logo" className="h-full w-auto object-contain" /></a>
+        </div>
+      </header>
+
+      {/* Steps */}
+      <div className="px-[clamp(24px,5vw,80px)] py-8 bg-white">
+        <div className="max-w-[900px] mx-auto flex items-center justify-between gap-4">
+          {['Personal Info', 'Subject', 'Exam', 'Payment'].map((step, i) => (
+            <div key={step} className="flex flex-col items-center gap-2 flex-1">
+              <div className={`h-2.5 w-full max-w-[200px] rounded-full ${i <= 1 ? 'bg-brand' : 'bg-gray-200'}`} />
+              <span className={`text-[clamp(12px,1.2vw,18px)] whitespace-nowrap ${i <= 1 ? 'text-brand font-semibold' : 'text-gray-400'}`}>{step}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="main-body-without-logo-apply-css">
-        <div className="inside-main-body-without-logo-apply-css">
-          <div className="steps-form-container w-full max-w-[1000px] mx-auto px-4">
-            <div className="main-container-steps flex flex-wrap justify-between gap-2 sm:gap-4 w-full">
-              <div className="step-personal-info-container flex flex-col items-center">
-                <p className="step-personal-info-text text-sm sm:text-base">Personal Info</p>
-                <div className="step-color-personal-info"></div>
-              </div>
-              <div className="step-subject-container flex flex-col items-center">
-                <p className="step-subject-text text-sm sm:text-base">Subject</p>
-                <div className="step-color-personal-info"></div>
-              </div>
-              <div className="step-exam-container flex flex-col items-center">
-                <p className="step-exam-text text-sm sm:text-base">Exam</p>
-                <div className="step-color-exam"></div>
-              </div>
-              <div className="step-payment-container flex flex-col items-center">
-                <p className="step-payment-text text-sm sm:text-base">Payment</p>
-                <div className="step-color-payment"></div>
-              </div>
-            </div>
+      {/* Main */}
+      <main className="max-w-[800px] mx-auto px-4 mt-10">
+        <div className="bg-white rounded-2xl shadow-card p-8 sm:p-10">
+          <p className="text-brand text-xl font-bold text-center mb-6">Which subject(s) do you want to study?</p>
 
-            <div className="subjects-container">
-              <p className="subjects-question">Which subject(s) do you want to study?</p>
-              <div className="subjects-grid">
-                {subjects.map((subject) => (
-                  <button
-                    key={subject}
-                    className={`subjects-css ${selectedSubjects.includes(subject) ? 'active' : ''}`}
-                    onClick={() => toggleSubject(subject)}
-                  >
-                    <span>{subject}</span>
-                    <input
-                      className="checkbox-css"
-                      type="checkbox"
-                      checked={selectedSubjects.includes(subject)}
-                      onChange={() => {}}
-                    />
-                  </button>
-                ))}
-              </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-[600px] mx-auto">
+            {subjects.map((subject) => (
+              <button
+                key={subject}
+                className={`flex items-center justify-between px-5 py-3.5 rounded-full border-2 border-brand transition-all font-medium text-sm ${
+                  selectedSubjects.includes(subject)
+                    ? 'bg-brand text-white'
+                    : 'bg-white text-brand hover:bg-brand-light'
+                }`}
+                onClick={() => toggleSubject(subject)}
+              >
+                <span>{subject}</span>
+                <input
+                  type="checkbox"
+                  checked={selectedSubjects.includes(subject)}
+                  onChange={() => {}}
+                  className="accent-white ml-2"
+                />
+              </button>
+            ))}
+          </div>
 
-              <div className="previous-next-container-css flex flex-row justify-between items-center gap-4 w-full mt-6">
-                <button className="previous-btn-css" onClick={handlePrevious}>
-                  <div className="previous-icon-container">
-                    <img className="previous-icon" src="/registration-icons/prev-next/previous.png" alt="Previous" />
-                  </div>
-                  <p className="previous-text">PREVIOUS</p>
-                </button>
-                <button
-                  className="next-btn-css next-btn-js"
-                  onClick={handleNext}
-                  disabled={selectedSubjects.length === 0}
-                  style={{
-                    backgroundColor: selectedSubjects.length > 0 ? 'rgb(0,98,54)' : 'gray',
-                    cursor: selectedSubjects.length > 0 ? 'pointer' : 'not-allowed'
-                  }}
-                >
-                  <p className="next-text">NEXT</p>
-                  <div className="next-icon-container">
-                    <img className="next-icon" src="/registration-icons/prev-next/next.png" alt="Next" />
-                  </div>
-                </button>
-              </div>
-            </div>
+          <div className="flex justify-between items-center w-full max-w-[600px] mx-auto mt-8">
+            <button
+              className="flex items-center gap-2 bg-brand text-white px-8 py-3 rounded-full border-none cursor-pointer font-medium text-sm hover:bg-brand-dark transition-colors"
+              onClick={handlePrevious}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              PREVIOUS
+            </button>
+            <button
+              className="flex items-center gap-2 bg-brand text-white px-8 py-3 rounded-full border-none cursor-pointer font-medium text-sm hover:bg-brand-dark transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              onClick={handleNext}
+              disabled={selectedSubjects.length === 0}
+            >
+              NEXT
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
 
 export default SubjectSelection;
-

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import StudentLayout from "./StudentLayout";
-
-const TEACHER_IMG = "https://images.unsplash.com/photo-1726618069974-c1d5d27f612b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMGZlbWFsZSUyMHRlYWNoZXIlMjBwb3J0cmFpdCUyMHByb2Zlc3Npb25hbHxlbnwxfHx8fDE3NzQwMDg2NDd8MA&ixlib=rb-4.1.0&q=80&w=1080";
-const STUDENT_IMG = "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMG1hbGUlMjBzdHVkZW50JTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzM5MzI5MDB8MA&ixlib=rb-4.1.0&q=80&w=1080";
+import { getMySessions, updateSessionStatus } from "../../../utils/panelApi";
+import { createPeerConnection, getLocalStream, getScreenStream, replaceTrack } from "../../../utils/webrtc";
+import { connectSignaling } from "../../../utils/signaling";
 
 /* ---- SVG Icons ---- */
 const CameraIcon = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>;
@@ -14,33 +14,41 @@ const EndCallIcon = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="
 const SendIcon = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="#006236"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>;
 const ClockIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
 
-const SESSION = {
-  teacher: "Amina Rahimi",
-  subject: "English",
-  level: "Elementary",
-  topic: "Past Simple Tense",
-  duration: 60,
-};
-
-const INITIAL_MESSAGES = [
-  { id: 1, sender: "Teacher", text: "Good morning Ahmad! Ready for today's lesson?", isStudent: false, time: "10:00 AM" },
-  { id: 2, sender: "You", text: "Good morning teacher! Yes, I did the homework too.", isStudent: true, time: "10:01 AM" },
-  { id: 3, sender: "Teacher", text: "Great! Let's start with a quick review of yesterday's vocabulary.", isStudent: false, time: "10:02 AM" },
-];
-
-const SHARED_NOTES_INITIAL = "Past Simple Tense — Key Rules\n\nRegular verbs: add -ed\n  walk → walked\n  play → played\n\nIrregular verbs:\n  go → went\n  eat → ate\n  see → saw\n\nNegatives: did not + base form\n  I did not walk → I didn't walk";
-
 export default function StudentLiveSession() {
+  const [sessionData, setSessionData] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const sessions = await getMySessions();
+        if (sessions.length > 0) setSessionData(sessions[0]);
+      } catch { /* use fallback */ }
+    })();
+  }, []);
+
+  const SESSION = {
+    topic: sessionData?.topic || "Live Session",
+    duration: sessionData?.duration_minutes || 60,
+  };
+
   const [sessionState, setSessionState] = useState("lobby");
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [cameraOn, setCameraOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
-  const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [activeTab, setActiveTab] = useState("chat");
   const [showEndModal, setShowEndModal] = useState(false);
-  const [sharedNotes] = useState(SHARED_NOTES_INITIAL);
+  const [sharedNotes] = useState(sessionData?.notes || "");
   const chatEndRef = useRef(null);
+
+  // WebRTC refs
+  const localVideoRef = useRef(null);
+  const remoteVideoRef = useRef(null);
+  const pcRef = useRef(null);
+  const signalingRef = useRef(null);
+  const localStreamRef = useRef(null);
+  const cameraTrackRef = useRef(null);
 
   const totalTime = SESSION.duration * 60;
 
@@ -48,7 +56,7 @@ export default function StudentLiveSession() {
     if (sessionState !== "live") return;
     const timer = setInterval(() => {
       setTimeElapsed(prev => {
-        if (prev >= totalTime) { clearInterval(timer); setSessionState("ended"); return totalTime; }
+        if (prev >= totalTime) { clearInterval(timer); return totalTime; }
         return prev + 1;
       });
     }, 1000);
@@ -59,6 +67,15 @@ export default function StudentLiveSession() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, activeTab]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      pcRef.current?.close();
+      signalingRef.current?.close();
+      localStreamRef.current?.getTracks().forEach(t => t.stop());
+    };
+  }, []);
+
   const formatTime = (s) => {
     const m = Math.floor(s / 60);
     const sec = s % 60;
@@ -68,44 +85,122 @@ export default function StudentLiveSession() {
   const timeRemaining = totalTime - timeElapsed;
   const progress = (timeElapsed / totalTime) * 100;
 
+  const handleSignalingMessage = async (msg) => {
+    if (msg.type === "offer") {
+      // Teacher sent an offer — create answer
+      const pc = createPeerConnection(
+        (remoteStream) => {
+          if (remoteVideoRef.current) remoteVideoRef.current.srcObject = remoteStream;
+        },
+        (candidate) => {
+          signalingRef.current?.send({ type: "ice-candidate", candidate });
+        }
+      );
+      pcRef.current = pc;
+      localStreamRef.current?.getTracks().forEach(track => pc.addTrack(track, localStreamRef.current));
+      await pc.setRemoteDescription(new RTCSessionDescription({ type: "offer", sdp: msg.sdp }));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      signalingRef.current?.send({ type: "answer", sdp: answer.sdp });
+
+    } else if (msg.type === "ice-candidate" && msg.candidate) {
+      await pcRef.current?.addIceCandidate(new RTCIceCandidate(msg.candidate));
+
+    } else if (msg.type === "peer-left") {
+      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
+    }
+  };
+
+  const joinSession = async () => {
+    setSessionState("live");
+    try {
+      const stream = await getLocalStream();
+      localStreamRef.current = stream;
+      cameraTrackRef.current = stream.getVideoTracks()[0];
+      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+
+      const roomId = sessionData?.room_id;
+      if (!roomId) return;
+
+      const signaling = connectSignaling(roomId, handleSignalingMessage);
+      signalingRef.current = signaling;
+    } catch (err) {
+      console.error("Failed to join session:", err);
+    }
+  };
+
+  const toggleScreenShare = async () => {
+    if (!pcRef.current) return;
+    try {
+      const screenStream = await getScreenStream();
+      const screenTrack = screenStream.getVideoTracks()[0];
+      replaceTrack(pcRef.current, screenTrack, "video");
+      if (localVideoRef.current) localVideoRef.current.srcObject = screenStream;
+
+      screenTrack.onended = () => {
+        if (cameraTrackRef.current) {
+          replaceTrack(pcRef.current, cameraTrackRef.current, "video");
+          if (localVideoRef.current) localVideoRef.current.srcObject = localStreamRef.current;
+        }
+      };
+    } catch (err) {
+      console.error("Screen share failed:", err);
+    }
+  };
+
+  const leaveSession = async () => {
+    pcRef.current?.close();
+    signalingRef.current?.close();
+    localStreamRef.current?.getTracks().forEach(t => t.stop());
+    pcRef.current = null;
+    signalingRef.current = null;
+    setSessionState("ended");
+    setShowEndModal(false);
+    if (sessionData?.id) {
+      try { await updateSessionStatus(sessionData.id, "ended"); } catch {}
+    }
+  };
+
+  const toggleCamera = () => {
+    const videoTrack = localStreamRef.current?.getVideoTracks()[0];
+    if (videoTrack) {
+      videoTrack.enabled = !videoTrack.enabled;
+      setCameraOn(videoTrack.enabled);
+    }
+  };
+
+  const toggleMic = () => {
+    const audioTrack = localStreamRef.current?.getAudioTracks()[0];
+    if (audioTrack) {
+      audioTrack.enabled = !audioTrack.enabled;
+      setMicOn(audioTrack.enabled);
+    }
+  };
+
   const sendMessage = () => {
     if (!inputText.trim()) return;
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     setMessages(prev => [...prev, { id: Date.now(), sender: "You", text: inputText.trim(), isStudent: true, time: timeStr }]);
     setInputText("");
-    setTimeout(() => {
-      const replies = ["Good job!", "Let's move on to the next exercise.", "Can you try that again?", "Exactly right!", "Remember the rule we discussed."];
-      const t = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      setMessages(prev => [...prev, { id: Date.now() + 1, sender: "Teacher", text: replies[Math.floor(Math.random() * replies.length)], isStudent: false, time: t }]);
-    }, 2500);
   };
 
   const CONTROLS = [
-    { icon: cameraOn ? <CameraIcon/> : <CameraOffIcon/>, bg: cameraOn ? "bg-white/20" : "bg-[#c51310]", label: "Camera", onClick: () => setCameraOn(!cameraOn) },
-    { icon: micOn ? <MicIcon/> : <MicOffIcon/>, bg: micOn ? "bg-white/20" : "bg-[#c51310]", label: "Mic", onClick: () => setMicOn(!micOn) },
-    { icon: <ScreenShareIcon/>, bg: "bg-white/20", label: "Share Screen", onClick: () => {} },
+    { icon: cameraOn ? <CameraIcon/> : <CameraOffIcon/>, bg: cameraOn ? "bg-white/20" : "bg-[#c51310]", label: "Camera", onClick: toggleCamera },
+    { icon: micOn ? <MicIcon/> : <MicOffIcon/>, bg: micOn ? "bg-white/20" : "bg-[#c51310]", label: "Mic", onClick: toggleMic },
+    { icon: <ScreenShareIcon/>, bg: "bg-white/20", label: "Share Screen", onClick: toggleScreenShare },
     { icon: <EndCallIcon/>, bg: "bg-[#c51310]", label: "Leave", onClick: () => setShowEndModal(true) },
   ];
-
-  const BREADCRUMBS = [SESSION.subject, SESSION.level, SESSION.topic];
 
   return (
     <StudentLayout activePage="s-live">
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* Breadcrumb */}
-        <div className="mx-[clamp(12px,2vw,24px)] mt-[clamp(12px,2vw,24px)] bg-[#006236] rounded-full py-2.5 px-[clamp(16px,2vw,32px)] flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-white text-[clamp(12px,1.2vw,16px)] font-semibold">Live Session</span>
-            <svg width="8" height="8" viewBox="0 0 8 8" fill="#fff" className="opacity-60"><path d="M0 0 L8 4 L0 8 Z"/></svg>
-            {BREADCRUMBS.map((crumb, idx) => (
-              <span key={idx} className="flex items-center gap-1.5">
-                <span className="text-white text-[clamp(12px,1.2vw,16px)]">{crumb}</span>
-                {idx < BREADCRUMBS.length - 1 && <svg width="8" height="8" viewBox="0 0 8 8" fill="#fff" className="opacity-60"><path d="M0 0 L8 4 L0 8 Z"/></svg>}
-              </span>
-            ))}
-          </div>
+        <div className="mx-[clamp(12px,2vw,24px)] mt-[clamp(12px,2vw,24px)] bg-[#006236] rounded-full py-2.5 px-[clamp(16px,2vw,32px)] flex items-center justify-between gap-3">
+          <span className="text-white text-[clamp(12px,1.2vw,16px)] font-semibold">
+            Live Session — {SESSION.topic}
+          </span>
           {sessionState === "live" && (
             <div className="flex items-center gap-2">
               <span className="h-2.5 w-2.5 rounded-full bg-[#c51310] animate-pulse inline-block"/>
@@ -122,32 +217,16 @@ export default function StudentLiveSession() {
 
             {/* Lobby */}
             {sessionState === "lobby" && (
-              <div className="flex-1 bg-[#1a1a1a] rounded-2xl flex flex-col items-center justify-center gap-5 p-8 text-center relative overflow-hidden">
-                <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "radial-gradient(circle at 25% 25%, #006236 1px, transparent 1px), radial-gradient(circle at 75% 75%, #006236 1px, transparent 1px)", backgroundSize: "40px 40px" }}/>
-                <div className="relative z-10 flex flex-col items-center gap-4">
-                  <div className="w-20 h-20 rounded-full border-4 border-[#006236] overflow-hidden">
-                    <img src={TEACHER_IMG} alt="Teacher" className="w-full h-full object-cover"/>
-                  </div>
-                  <div>
-                    <h3 className="text-white text-xl font-bold m-0">{SESSION.teacher}</h3>
-                    <p className="text-gray-400 text-sm m-0">{SESSION.subject} — {SESSION.level}</p>
-                  </div>
-                  <div className="bg-white/10 rounded-xl px-6 py-4 flex flex-col gap-1.5">
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
-                      <span className="text-[#006236] font-semibold">Topic:</span> {SESSION.topic}
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
-                      <span className="text-[#006236] font-semibold">Duration:</span> {SESSION.duration} minutes
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-300 text-sm">
-                      <span className="text-[#006236] font-semibold">Time:</span> 10:00 AM — 11:00 AM
-                    </div>
-                  </div>
-                  <button onClick={() => setSessionState("live")}
-                    className="mt-2 flex items-center gap-2 bg-[#006236] text-white px-8 py-3.5 rounded-full border-none cursor-pointer text-base font-bold tracking-wider hover:bg-[#004d2a] transition-colors hover:scale-[1.03]">
-                    <CameraIcon /> Join Session
-                  </button>
+              <div className="flex-1 bg-white border border-[#006236]/10 rounded-2xl flex flex-col items-center justify-center gap-5 p-8 text-center">
+                <div className="w-16 h-16 rounded-full bg-[#006236]/10 flex items-center justify-center">
+                  <CameraIcon />
                 </div>
+                <h3 className="text-gray-800 text-xl font-bold m-0">Ready to join</h3>
+                <p className="text-gray-500 text-sm m-0">{SESSION.topic} · {SESSION.duration} min</p>
+                <button onClick={joinSession}
+                  className="mt-2 flex items-center gap-2 bg-[#006236] text-white px-8 py-3.5 rounded-full border-none cursor-pointer text-base font-bold tracking-wider hover:bg-[#004d2a] transition-colors">
+                  <CameraIcon /> Join Session
+                </button>
               </div>
             )}
 
@@ -165,17 +244,23 @@ export default function StudentLiveSession() {
                   </div>
                   <div className="absolute top-3 left-3 z-10 bg-black/50 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-[#006236]"/>
-                    {SESSION.teacher} — Teacher
+                    Teacher
                   </div>
-                  <img src={TEACHER_IMG} alt="Teacher" className="absolute inset-0 w-full h-full object-cover"/>
+
+                  {/* Main video: remote peer (teacher) */}
+                  <video ref={remoteVideoRef} autoPlay playsInline
+                    className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 flex items-center justify-center text-white/30 text-lg pointer-events-none">
+                    {!remoteVideoRef.current?.srcObject && "Waiting for teacher..."}
+                  </div>
+
+                  {/* Student PiP: local camera */}
                   <div className="absolute bottom-16 right-3 w-[clamp(80px,10vw,140px)] h-[clamp(60px,7.5vw,105px)] rounded-xl overflow-hidden border-2 border-[#006236] z-10 shadow-lg">
-                    {cameraOn ? (
-                      <img src={STUDENT_IMG} alt="You" className="w-full h-full object-cover"/>
-                    ) : (
-                      <div className="w-full h-full bg-gray-800 flex items-center justify-center text-white text-lg font-bold">AN</div>
-                    )}
+                    <video ref={localVideoRef} autoPlay playsInline muted
+                      className="w-full h-full object-cover" />
                     <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[clamp(9px,0.7vw,11px)] text-center py-0.5">You</div>
                   </div>
+
                   <div className="absolute bottom-0 inset-x-0 flex items-center justify-center gap-[clamp(6px,1.2vw,14px)] p-3 z-10" style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.75))" }}>
                     {CONTROLS.map(c => (
                       <button key={c.label} title={c.label} onClick={c.onClick}
@@ -185,7 +270,7 @@ export default function StudentLiveSession() {
                     ))}
                   </div>
                 </div>
-                <div className="bg-[#d9d9d9] rounded-xl px-4 py-3 flex items-center gap-3 shrink-0">
+                <div className="bg-white border border-[#006236]/10 rounded-xl px-4 py-3 flex items-center gap-3 shrink-0">
                   <span className="text-[#006236] text-xs font-semibold whitespace-nowrap">{formatTime(timeElapsed)}</span>
                   <div className="flex-1 h-2.5 bg-gray-300 rounded-full overflow-hidden">
                     <div className="h-full bg-[#006236] rounded-full transition-all duration-1000" style={{ width: `${progress}%` }}/>
@@ -197,19 +282,12 @@ export default function StudentLiveSession() {
 
             {/* Ended */}
             {sessionState === "ended" && (
-              <div className="flex-1 bg-[#1a1a1a] rounded-2xl flex flex-col items-center justify-center gap-5 p-8 text-center">
+              <div className="flex-1 bg-white border border-[#006236]/10 rounded-2xl flex flex-col items-center justify-center gap-5 p-8 text-center">
                 <div className="w-16 h-16 rounded-full bg-[#006236] flex items-center justify-center">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
-                <h3 className="text-white text-2xl font-bold m-0">Session Complete</h3>
-                <p className="text-gray-400 text-sm m-0 max-w-[400px] leading-relaxed">
-                  Great work! Your session with {SESSION.teacher} has ended.
-                </p>
-                <div className="bg-white/10 rounded-xl px-6 py-4 flex flex-col gap-1.5 w-full max-w-[300px]">
-                  <div className="flex justify-between text-gray-300 text-sm"><span>Teacher:</span><span className="text-white font-semibold">{SESSION.teacher}</span></div>
-                  <div className="flex justify-between text-gray-300 text-sm"><span>Duration:</span><span className="text-white font-semibold">{formatTime(timeElapsed)}</span></div>
-                  <div className="flex justify-between text-gray-300 text-sm"><span>Topic:</span><span className="text-white font-semibold">{SESSION.topic}</span></div>
-                </div>
+                <h3 className="text-gray-800 text-2xl font-bold m-0">Session Complete</h3>
+                <p className="text-gray-500 text-sm m-0">{SESSION.topic} · {formatTime(timeElapsed)}</p>
                 <button onClick={() => { setSessionState("lobby"); setTimeElapsed(0); }}
                   className="bg-[#006236] text-white px-6 py-2.5 rounded-full border-none cursor-pointer text-sm font-semibold hover:bg-[#004d2a] transition-colors">
                   Back to Lobby
@@ -219,8 +297,8 @@ export default function StudentLiveSession() {
           </div>
 
           {/* RIGHT: Chat / Notes */}
-          <div className="flex flex-col gap-0 overflow-hidden rounded-2xl bg-[#d9d9d9]">
-            <div className="flex border-b-2 border-[#006236]/15 bg-[#d9d9d9] shrink-0">
+          <div className="flex flex-col gap-0 overflow-hidden rounded-2xl bg-[#f4f6f5] border border-[#006236]/10">
+            <div className="flex border-b-2 border-[#006236]/15 bg-[#f4f6f5] shrink-0">
               {[{ key: "chat", label: "Chat" }, { key: "notes", label: "Shared Notes" }].map(tab => (
                 <button key={tab.key} onClick={() => setActiveTab(tab.key)}
                   className={`flex-1 py-3 text-[clamp(11px,1vw,14px)] cursor-pointer border-none transition-colors ${
@@ -280,7 +358,7 @@ export default function StudentLiveSession() {
               <p className="text-gray-500 text-sm m-0">There are still <strong className="text-[#c51310]">{formatTime(timeRemaining)}</strong> remaining in this session.</p>
               <div className="flex gap-3 mt-2">
                 <button onClick={() => setShowEndModal(false)} className="flex-1 py-2.5 rounded-full border-2 border-gray-200 bg-white text-gray-600 cursor-pointer text-sm font-semibold hover:bg-gray-50">Cancel</button>
-                <button onClick={() => { setSessionState("ended"); setShowEndModal(false); }} className="flex-1 py-2.5 rounded-full border-none bg-[#c51310] text-white cursor-pointer text-sm font-bold hover:bg-[#a00f0d]">Leave</button>
+                <button onClick={leaveSession} className="flex-1 py-2.5 rounded-full border-none bg-[#c51310] text-white cursor-pointer text-sm font-bold hover:bg-[#a00f0d]">Leave</button>
               </div>
             </div>
           </div>

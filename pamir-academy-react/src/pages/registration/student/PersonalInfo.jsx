@@ -6,31 +6,41 @@ const STEPS = ["Personal Information", "Exam", "Payment"];
 
 const ChevronLeft = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>;
 const ChevronRight = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>;
-const UploadIcon = () => <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#006236" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
+const UploadIcon = () => <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>;
 
 const inputCls = "w-full bg-[#d9d9d9] rounded-full px-6 py-3.5 border-none outline-none text-black";
 
 export default function PersonalInfo() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ firstName:"", lastName:"", gender:"", birthDate:"", email:"", whatsapp:"", timeZone:"", location:"" });
+  const [formData, setFormData] = useState({ firstName:"", lastName:"", gender:"", birthDate:"", whatsapp:"", timeZone:"", location:"" });
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [photoFile, setPhotoFile] = useState(null);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-  const handlePhotoUpload = (e) => { const f = e.target.files?.[0]; if(f){ const r=new FileReader(); r.onloadend=()=>setPhotoPreview(r.result); r.readAsDataURL(f); }};
+  const handlePhotoUpload = (e) => {
+    const f = e.target.files?.[0];
+    if (f) {
+      setPhotoFile(f);
+      const r = new FileReader();
+      r.onloadend = () => setPhotoPreview(r.result);
+      r.readAsDataURL(f);
+    }
+  };
 
   const handleNext = async () => {
     setSaving(true);
     try {
-      await saveStudentProfile({
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        gender: formData.gender,
-        birth_date: formData.birthDate || null,
-        whatsapp: formData.whatsapp,
-        timezone: formData.timeZone,
-        location: formData.location,
-      });
+      const payload = new FormData();
+      payload.append("first_name", formData.firstName);
+      payload.append("last_name", formData.lastName);
+      payload.append("gender", formData.gender);
+      payload.append("birth_date", formData.birthDate || "");
+      payload.append("whatsapp", formData.whatsapp);
+      payload.append("timezone", formData.timeZone);
+      payload.append("location", formData.location);
+      if (photoFile) payload.append("photo", photoFile);
+      await saveStudentProfile(payload);
     } catch {
       // API might not be running — continue anyway
     }
@@ -41,17 +51,16 @@ export default function PersonalInfo() {
   const handlePrevious = () => navigate("/register");
 
   return (
-    <div className="font-['Nunito_Sans'] w-screen min-h-screen flex flex-col bg-[#f5f5f5] overflow-x-hidden">
+    <div className="w-screen min-h-screen flex flex-col bg-surface overflow-x-hidden">
       {/* Header */}
-      <header className="flex items-center justify-between px-[clamp(24px,5vw,80px)] py-4 bg-white border-b border-gray-200">
-        <div className="h-[60px] flex items-center">
+      <header className="bg-white border-b border-gray-100 shadow-sm px-[clamp(24px,5vw,80px)] py-4">
+        <div className="h-[50px] flex items-center">
           <img
             src="/logo/final_logo.svg"
             alt="Pamir Academy Logo"
             className="h-full w-auto object-contain"
           />
         </div>
-        <button className="bg-[#006236] text-white px-8 py-2.5 rounded-full border-none cursor-pointer tracking-wider">LOGIN</button>
       </header>
 
       {/* Steps */}
@@ -59,8 +68,8 @@ export default function PersonalInfo() {
         <div className="max-w-[900px] mx-auto flex items-center justify-between gap-4">
           {STEPS.map((step, i) => (
             <div key={step} className="flex flex-col items-center gap-2 flex-1">
-              <div className={`h-2.5 w-full max-w-[200px] rounded-full ${i===0 ? "bg-[#006236]" : "bg-[#d9d9d9]"}`}/>
-              <span className={`text-[clamp(12px,1.2vw,18px)] whitespace-nowrap ${i===0 ? "text-[#006236] font-semibold" : "text-[#a7a7a7]"}`}>{step}</span>
+              <div className={`h-2.5 w-full max-w-[200px] rounded-full ${i===0 ? "bg-brand" : "bg-gray-200"}`}/>
+              <span className={`text-[clamp(12px,1.2vw,18px)] whitespace-nowrap ${i===0 ? "text-brand font-semibold" : "text-gray-400"}`}>{step}</span>
             </div>
           ))}
         </div>
@@ -92,11 +101,7 @@ export default function PersonalInfo() {
               <label className="block mb-2 text-black font-semibold">Birth Date</label>
               <input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} className={`${inputCls} ${formData.birthDate ? "text-black" : "text-[#a7a7a7]"}`}/>
             </div>
-            <div>
-              <label className="block mb-2 text-black font-semibold">Email</label>
-              <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="example@email.com" className={inputCls}/>
-            </div>
-            <div>
+            <div className="col-span-full">
               <label className="block mb-2 text-black font-semibold">WhatsApp</label>
               <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleChange} placeholder="Ex. +442343243" className={inputCls}/>
             </div>
@@ -116,7 +121,7 @@ export default function PersonalInfo() {
             <div className="flex items-center gap-10 flex-wrap">
               <button onClick={() => fileInputRef.current?.click()}
                 className="w-[180px] h-[180px] bg-[#d9d9d9] rounded-3xl flex flex-col items-center justify-center gap-2 border-none cursor-pointer shrink-0">
-                <UploadIcon/><span className="text-[#006236] text-sm">Click to upload</span>
+                <UploadIcon/><span className="text-brand text-sm">Click to upload</span>
               </button>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden"/>
               <div className="w-[180px] h-[180px] rounded-3xl overflow-hidden bg-[#d9d9d9] shrink-0 flex items-center justify-center">
@@ -127,13 +132,13 @@ export default function PersonalInfo() {
 
           {/* Nav */}
           <div className="flex items-center justify-between mt-12">
-            <button onClick={handlePrevious} className="flex items-center gap-2 bg-[#006236] text-white px-8 py-3.5 rounded-full border-none cursor-pointer tracking-wider"><ChevronLeft/> PREVIOUS</button>
-            <button onClick={handleNext} disabled={saving} className="flex items-center gap-2 bg-[#006236] text-white px-8 py-3.5 rounded-full border-none cursor-pointer tracking-wider disabled:opacity-60">{saving ? "Saving..." : "NEXT"} <ChevronRight/></button>
+            <button onClick={handlePrevious} className="flex items-center gap-2 bg-brand text-white px-8 py-3.5 rounded-full border-none cursor-pointer tracking-wider hover:bg-brand-dark transition-colors"><ChevronLeft/> PREVIOUS</button>
+            <button onClick={handleNext} disabled={saving} className="flex items-center gap-2 bg-brand text-white px-8 py-3.5 rounded-full border-none cursor-pointer tracking-wider disabled:opacity-60 hover:bg-brand-dark transition-colors">{saving ? "Saving..." : "NEXT"} <ChevronRight/></button>
           </div>
 
           <p className="text-center mt-8">
             <span className="text-[#7d807f]">If you need our help? </span>
-            <a href="#" className="text-[#006236] no-underline">contact us</a>
+            <a href="#" className="text-brand no-underline">contact us</a>
           </p>
         </div>
       </main>

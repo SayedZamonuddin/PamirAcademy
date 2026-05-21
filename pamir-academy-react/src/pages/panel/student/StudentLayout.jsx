@@ -1,6 +1,7 @@
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const STUDENT_AVATAR = "https://images.unsplash.com/photo-1600180758890-6b94519a8ba6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMG1hbGUlMjBzdHVkZW50JTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzM5MzI5MDB8MA&ixlib=rb-4.1.0&q=80&w=1080";
+import { useAuth } from "../../../contexts/AuthContext";
+import { getStudentProfile } from "../../../utils/registrationApi";
 
 /* ---- SVG Icons ---- */
 const DashboardIcon = () => (
@@ -36,8 +37,17 @@ const MessageIcon = () => (
   </svg>
 );
 
+const CoursesIcon = () => (
+  <svg width="40" height="40" viewBox="0 0 100 100" fill="none">
+    <path d="M20 25h60v50H20z" stroke="currentColor" strokeWidth="5" fill="none" rx="4"/>
+    <path d="M50 25v50" stroke="currentColor" strokeWidth="4"/>
+    <path d="M30 40h12M30 50h12M30 60h12M58 40h12M58 50h12M58 60h12" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+  </svg>
+);
+
 const NAV_ITEMS = [
   { key: "s-dashboard", label: "Dashboard", icon: DashboardIcon, path: "/student" },
+  { key: "s-courses", label: "Courses", icon: CoursesIcon, path: "/student/courses" },
   { key: "s-live", label: "Live", icon: LiveSessionIcon, path: "/student/live-session" },
   { key: "s-schedule", label: "Schedule", icon: ScheduleIcon, path: "/student/schedule" },
   { key: "s-groups", label: "Groups", icon: GroupIcon, path: "/student/groups" },
@@ -46,80 +56,104 @@ const NAV_ITEMS = [
 
 export default function StudentLayout({ activePage, children }) {
   const navigate = useNavigate();
+  const { logout, currentUser } = useAuth();
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await getStudentProfile();
+        if (!cancelled) setProfile(data || null);
+      } catch {
+        if (!cancelled) setProfile(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const mediaBase = useMemo(() => {
+    const apiBase = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
+    return apiBase.replace(/\/api\/?$/, "");
+  }, []);
+
+  const fullName = useMemo(() => {
+    const first = (profile?.first_name || "").trim();
+    const last = (profile?.last_name || "").trim();
+    const joined = `${first} ${last}`.trim();
+    if (joined) return joined;
+    if (currentUser?.display_name) return currentUser.display_name;
+    if (currentUser?.email) return currentUser.email.split("@")[0];
+    return "Student";
+  }, [profile, currentUser]);
+
+  const photoUrl = useMemo(() => {
+    const raw = profile?.photo;
+    if (!raw) return null;
+    if (raw.startsWith("http://") || raw.startsWith("https://")) return raw;
+    return raw.startsWith("/") ? `${mediaBase}${raw}` : `${mediaBase}/${raw}`;
+  }, [profile, mediaBase]);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
   return (
-    <div className="font-['Nunito_Sans'] w-screen min-h-screen flex flex-col bg-[#a7a7a7] overflow-x-hidden">
+    <div className="w-screen min-h-screen flex flex-col bg-surface overflow-x-hidden">
       {/* Header */}
-      <header className="flex items-center justify-between px-[clamp(16px,4vw,80px)] py-4 min-h-[80px]">
-        <div className="h-[60px] flex items-center">
+      <header className="bg-white border-b border-gray-100 shadow-sm flex items-center justify-between px-[clamp(16px,4vw,80px)] py-4 min-h-[70px]">
+        <div className="h-[50px] flex items-center">
           <img src="/logo/final_logo.svg" alt="Pamir Academy" className="h-full w-auto object-contain" />
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
-            <div className="text-white">Ahmad Nazari</div>
-            <div className="text-[#7d807f] text-xs">Student — English</div>
+            <div className="text-gray-800 font-medium text-sm">{fullName}</div>
+            <div className="text-gray-400 text-xs">Student</div>
           </div>
-          <div className="w-[50px] h-[50px] rounded-full overflow-hidden border-2 border-[#006236]">
-            <img src={STUDENT_AVATAR} alt="Profile" className="w-full h-full object-cover" />
+          <div className="w-[45px] h-[45px] rounded-full overflow-hidden border-2 border-brand">
+            {photoUrl ? (
+              <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-brand text-white flex items-center justify-center text-sm font-bold">
+                {fullName?.charAt(0)?.toUpperCase() || "S"}
+              </div>
+            )}
           </div>
-          <button className="bg-[#c51310] text-white px-6 py-2.5 rounded-full border-none cursor-pointer text-sm tracking-wider">LOGOUT</button>
+          <button onClick={handleLogout} className="bg-brand hover:bg-brand-dark text-white px-6 py-2 rounded-full border-none cursor-pointer text-sm font-medium tracking-wider transition-colors">LOGOUT</button>
         </div>
       </header>
 
       {/* Body */}
-      <div className="flex-1 flex gap-1 px-[3px]">
+      <div className="flex-1 flex gap-3 p-3">
         {/* Sidebar */}
-        <nav className="w-[90px] shrink-0 bg-[#7d807f] rounded-2xl border-[3px] border-[#006236] flex flex-col items-center py-5 gap-2 overflow-y-auto">
+        <nav className="w-[90px] shrink-0 bg-white rounded-2xl shadow-card flex flex-col items-center py-5 gap-1 overflow-y-auto">
           {NAV_ITEMS.map((item) => {
             const active = activePage === item.key;
             const Icon = item.icon;
             return (
               <div key={item.key} onClick={() => navigate(item.path)}
-                className={`flex flex-col items-center gap-0.5 py-2 px-1 cursor-pointer rounded-[10px] w-[80px] ${active ? "text-white" : "text-[#006236]"}`}>
+                className={`flex flex-col items-center gap-0.5 py-2.5 px-1 cursor-pointer rounded-xl w-[78px] transition-all ${
+                  active ? "text-brand bg-brand-light shadow-sm" : "text-gray-400 hover:text-brand hover:bg-gray-50"
+                }`}>
                 <Icon />
-                <span className="text-[11px] text-center leading-tight">{item.label}</span>
+                <span className="text-[11px] text-center leading-tight font-medium">{item.label}</span>
               </div>
             );
           })}
         </nav>
 
         {/* Main content */}
-        <div className="flex-1 bg-[#7d807f] rounded-2xl border-[3px] border-[#006236] overflow-hidden flex flex-col">
+        <div className="flex-1 bg-white rounded-2xl shadow-card overflow-hidden flex flex-col">
           {children}
         </div>
       </div>
 
       {/* Help */}
-      <p className="text-center my-6 mb-2">
-        <span className="text-[#7d807f]">If you need our help? </span>
-        <a href="#" className="text-[#006236] no-underline">contact us</a>
+      <p className="text-center my-4 text-sm">
+        <span className="text-gray-400">If you need our help? </span>
+        <a href="#" className="text-brand no-underline font-medium hover:underline">contact us</a>
       </p>
-
-      {/* Footer */}
-      <footer className="bg-black/65 text-white px-[clamp(24px,5vw,80px)] py-12">
-        <div className="max-w-[1200px] mx-auto grid grid-cols-3 gap-8">
-          <div>
-            <h3 className="text-white mb-4">About</h3>
-            <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
-              {["Impact","Internship","About"].map(i=><li key={i}><a href="#" className="text-white/75 no-underline">{i}</a></li>)}
-            </ul>
-          </div>
-          <div className="text-center">
-            <h3 className="text-white mb-4">Contact</h3>
-            <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
-              {["Help Center","Share Your Story","Email"].map(i=><li key={i}><a href="#" className="text-white/75 no-underline">{i}</a></li>)}
-            </ul>
-          </div>
-          <div className="text-right">
-            <h3 className="text-white mb-4">Location</h3>
-            <ul className="list-none p-0 m-0 flex flex-col gap-2.5">
-              {["Khorog","London","Dushanbe"].map(i=><li key={i} className="text-white/75">{i}</li>)}
-            </ul>
-          </div>
-        </div>
-        <div className="max-w-[1200px] mx-auto mt-10">
-          <div className="h-[50px] bg-white/20 rounded-xl" />
-        </div>
-      </footer>
     </div>
   );
 }

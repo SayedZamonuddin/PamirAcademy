@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pamir}
+      POSTGRES_USER: ${POSTGRES_USER:-pamir}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pamir}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./pamir-academy-backend
+    restart: unless-stopped
+    volumes:
+      - media_data:/app/media
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-pamir}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-pamir}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./pamir-academy-react
+      args:
+        VITE_API_BASE_URL: /api
+        VITE_WS_BASE_URL: ""
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  media_data:

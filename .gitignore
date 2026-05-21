@@ -23,6 +23,11 @@ logs/
 *.log
 npm-debug.log*
 
+# Implementation plans (completed)
+Full_IMPLEMENTATION_PLAN.md
+IMPLEMENTATION_UPDATES.md
+FUTURE_IMPLS.md
+
 # IDE
 .vscode/
 .idea/

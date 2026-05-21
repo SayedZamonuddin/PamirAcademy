@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TeacherLayout from "./TeacherLayout";
+import { getTeacherPayments } from "../../../utils/panelApi";
 
 /* ---- SVG Icons ---- */
 const DownloadIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
@@ -12,56 +13,66 @@ const TrendUpIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="
 const CalendarIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
 const ClockIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
 
-/* ---- Payment Data ---- */
-const PAYMENTS = [
-  { id: "PAY-2026-0312", date: "Mar 12, 2026", student: "Ahmad Nazari", subject: "English", level: "Elementary", sessions: 8, rate: 15, amount: 120, status: "paid", method: "Bank Transfer" },
-  { id: "PAY-2026-0305", date: "Mar 5, 2026", student: "Fatima Karimova", subject: "English", level: "Intermediate", sessions: 6, rate: 18, amount: 108, status: "paid", method: "PayPal" },
-  { id: "PAY-2026-0228", date: "Feb 28, 2026", student: "Layla Ahmadi", subject: "English", level: "Advanced", sessions: 10, rate: 22, amount: 220, status: "paid", method: "Bank Transfer" },
-  { id: "PAY-2026-0221", date: "Feb 21, 2026", student: "Omar Hassan", subject: "English", level: "Beginner", sessions: 4, rate: 12, amount: 48, status: "paid", method: "PayPal" },
-  { id: "PAY-2026-0214", date: "Feb 14, 2026", student: "Daniyal Mirzo", subject: "English", level: "Elementary", sessions: 7, rate: 15, amount: 105, status: "paid", method: "Bank Transfer" },
-  { id: "PAY-2026-0320", date: "Mar 20, 2026", student: "Ahmad Nazari", subject: "English", level: "Elementary", sessions: 5, rate: 15, amount: 75, status: "pending", method: "Bank Transfer" },
-  { id: "PAY-2026-0318", date: "Mar 18, 2026", student: "Fatima Karimova", subject: "English", level: "Intermediate", sessions: 3, rate: 18, amount: 54, status: "pending", method: "PayPal" },
-  { id: "PAY-2026-0207", date: "Feb 7, 2026", student: "Layla Ahmadi", subject: "English", level: "Advanced", sessions: 8, rate: 22, amount: 176, status: "paid", method: "Bank Transfer" },
-  { id: "PAY-2026-0131", date: "Jan 31, 2026", student: "Omar Hassan", subject: "English", level: "Beginner", sessions: 6, rate: 12, amount: 72, status: "paid", method: "PayPal" },
-  { id: "PAY-2026-0124", date: "Jan 24, 2026", student: "Daniyal Mirzo", subject: "English", level: "Elementary", sessions: 8, rate: 15, amount: 120, status: "paid", method: "Bank Transfer" },
-];
-
-const MONTHS = ["All Time", "January 2026", "February 2026", "March 2026"];
-
-/* ---- Monthly chart data ---- */
-const MONTHLY_EARNINGS = [
-  { month: "Oct", amount: 420 },
-  { month: "Nov", amount: 580 },
-  { month: "Dec", amount: 510 },
-  { month: "Jan", amount: 650 },
-  { month: "Feb", amount: 730 },
-  { month: "Mar", amount: 490 },
-];
+const MONTHS = ["All Time"];
 
 export default function TeacherPayments() {
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState("All Time");
   const [showFilter, setShowFilter] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [expandedRow, setExpandedRow] = useState(null);
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getTeacherPayments();
+        setPayments(data.map(p => ({
+          id: `PAY-${p.id}`,
+          date: p.date,
+          student: p.student_name,
+          subject: p.subject_name,
+          level: p.level,
+          sessions: p.sessions,
+          rate: parseFloat(p.rate),
+          amount: parseFloat(p.amount),
+          status: p.status,
+          method: p.method,
+        })));
+      } catch (err) { console.error("Payments fetch error:", err); }
+      finally { setLoading(false); }
+    })();
+  }, []);
+
   const perPage = 6;
-
-  const filtered = selectedMonth === "All Time"
-    ? PAYMENTS
-    : PAYMENTS.filter(p => {
-        const monthStr = selectedMonth.split(" ")[0].slice(0, 3);
-        return p.date.includes(monthStr);
-      });
-
+  const filtered = payments;
   const totalPages = Math.ceil(filtered.length / perPage);
   const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
 
-  const totalEarned = PAYMENTS.filter(p => p.status === "paid").reduce((s, p) => s + p.amount, 0);
-  const totalPending = PAYMENTS.filter(p => p.status === "pending").reduce((s, p) => s + p.amount, 0);
-  const totalSessions = PAYMENTS.reduce((s, p) => s + p.sessions, 0);
-  const avgRate = Math.round(PAYMENTS.reduce((s, p) => s + p.rate, 0) / PAYMENTS.length);
+  const totalEarned = payments.filter(p => p.status === "paid").reduce((s, p) => s + p.amount, 0);
+  const totalPending = payments.filter(p => p.status === "pending").reduce((s, p) => s + p.amount, 0);
+  const totalSessions = payments.reduce((s, p) => s + p.sessions, 0);
+  const avgRate = payments.length > 0 ? Math.round(payments.reduce((s, p) => s + p.rate, 0) / payments.length) : 0;
 
-  const maxEarning = Math.max(...MONTHLY_EARNINGS.map(m => m.amount));
+  // Derive monthly earnings from payment data
+  const monthlyMap = {};
+  payments.filter(p => p.status === "paid").forEach(p => {
+    const d = new Date(p.date);
+    const key = d.toLocaleDateString("en-US", { month: "short" });
+    monthlyMap[key] = (monthlyMap[key] || 0) + p.amount;
+  });
+  const MONTHLY_EARNINGS = Object.entries(monthlyMap).map(([month, amount]) => ({ month, amount }));
+  const maxEarning = Math.max(1, ...MONTHLY_EARNINGS.map(m => m.amount));
+
+  if (loading) {
+    return (
+      <TeacherLayout activePage="t-payments">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-10 h-10 border-4 border-[#006236] border-t-transparent rounded-full animate-spin" />
+        </div>
+      </TeacherLayout>
+    );
+  }
 
   return (
     <TeacherLayout activePage="t-payments">
@@ -69,8 +80,8 @@ export default function TeacherPayments() {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-white text-[clamp(24px,3vw,40px)] font-bold m-0">Payment History</h1>
-            <p className="text-white/60 text-sm m-0 mt-1">Track your earnings and payment records</p>
+            <h1 className="text-gray-800 text-[clamp(24px,3vw,40px)] font-bold m-0">Payment History</h1>
+            <p className="text-gray-500 text-sm m-0 mt-1">Track your earnings and payment records</p>
           </div>
           <button className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#006236] text-white text-sm font-semibold border-none cursor-pointer hover:bg-[#004d2a] transition-colors">
             <DownloadIcon/> Export CSV
@@ -85,7 +96,7 @@ export default function TeacherPayments() {
             { label: "Total Sessions", value: totalSessions, icon: <CalendarIcon/>, color: "bg-blue-500" },
             { label: "Avg Rate / Session", value: `$${avgRate}`, icon: <TrendUpIcon/>, color: "bg-[#006236]" },
           ].map((card, i) => (
-            <div key={i} className="bg-[#d9d9d9] rounded-2xl p-[clamp(14px,1.5vw,24px)] flex items-center gap-3">
+            <div key={i} className="bg-white border border-[#006236]/10 rounded-2xl p-[clamp(14px,1.5vw,24px)] flex items-center gap-3">
               <div className={`${card.color} w-11 h-11 rounded-xl flex items-center justify-center text-white shrink-0`}>{card.icon}</div>
               <div>
                 <p className="text-gray-500 text-xs m-0">{card.label}</p>
@@ -96,7 +107,7 @@ export default function TeacherPayments() {
         </div>
 
         {/* Earnings Chart */}
-        <div className="bg-[#d9d9d9] rounded-2xl p-[clamp(16px,2vw,28px)]">
+        <div className="bg-white border border-[#006236]/10 rounded-2xl p-[clamp(16px,2vw,28px)]">
           <h3 className="text-[#006236] text-[clamp(14px,1.4vw,20px)] font-bold m-0 mb-4">Monthly Earnings</h3>
           <div className="flex items-end justify-between gap-[clamp(8px,1.5vw,20px)] h-[180px] px-2">
             {MONTHLY_EARNINGS.map(m => {
@@ -116,10 +127,10 @@ export default function TeacherPayments() {
         {/* Filter bar */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
-            <span className="text-white text-sm">Filter:</span>
+            <span className="text-gray-800 text-sm">Filter:</span>
             <div className="relative">
               <button onClick={() => setShowFilter(!showFilter)}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#d9d9d9] text-[#006236] text-sm font-semibold border-none cursor-pointer hover:bg-gray-300 transition-colors">
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#006236]/10 text-[#006236] text-sm font-semibold cursor-pointer hover:bg-[#006236]/5 transition-colors">
                 <FilterIcon/> {selectedMonth} <ChevronDown/>
               </button>
               {showFilter && (
@@ -134,11 +145,11 @@ export default function TeacherPayments() {
               )}
             </div>
           </div>
-          <span className="text-white/60 text-sm">{filtered.length} transaction{filtered.length !== 1 ? "s" : ""}</span>
+          <span className="text-gray-500 text-sm">{filtered.length} transaction{filtered.length !== 1 ? "s" : ""}</span>
         </div>
 
         {/* Payments Table */}
-        <div className="bg-[#d9d9d9] rounded-2xl overflow-hidden">
+        <div className="bg-white border border-[#006236]/10 rounded-2xl overflow-hidden">
           {/* Table header */}
           <div className="grid grid-cols-[1fr_1.2fr_0.8fr_0.6fr_0.6fr_0.7fr] gap-2 px-5 py-3 bg-[#006236] text-white text-[clamp(11px,1vw,14px)] font-semibold">
             <span>Date</span>

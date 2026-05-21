@@ -5,6 +5,10 @@ urlpatterns = [
     # Reference data
     path("subjects/", views.subject_list, name="reg-subjects"),
 
+    # Admin test-builder
+    path("admin/testbuilder/questions/", views.testbuilder_questions, name="reg-testbuilder-questions"),
+    path("admin/testbuilder/publish/", views.testbuilder_publish, name="reg-testbuilder-publish"),
+
     # Student registration flow
     path("student/personal-info/", views.student_personal_info, name="reg-student-personal-info"),
     path("student/subjects/", views.student_subjects, name="reg-student-subjects"),

@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import LearnMore from "./pages/LearnMore";
 import Products from "./pages/Products";
@@ -37,93 +38,82 @@ import StudentLiveSession from "./pages/panel/student/StudentLiveSession";
 import StudentMessages from "./pages/panel/student/StudentMessages";
 import StudentSchedule from "./pages/panel/student/StudentSchedule";
 import StudentGroups from "./pages/panel/student/StudentGroups";
+import StudentCourses from "./pages/panel/student/StudentCourses";
 import "./App.css";
+
+function Admin({ children }) {
+  return <ProtectedRoute allowedRoles={["admin"]}>{children}</ProtectedRoute>;
+}
+
+function Teacher({ children }) {
+  return <ProtectedRoute allowedRoles={["teacher"]}>{children}</ProtectedRoute>;
+}
+
+function Student({ children }) {
+  return <ProtectedRoute allowedRoles={["student"]}>{children}</ProtectedRoute>;
+}
+
+function LoggedIn({ children }) {
+  return <ProtectedRoute allowedRoles={["admin", "student", "teacher"]}>{children}</ProtectedRoute>;
+}
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* ---- Public routes ---- */}
         <Route path="/" element={<Home />} />
         <Route path="/learn-more" element={<LearnMore />} />
         <Route path="/products" element={<Products />} />
         <Route path="/subjects" element={<Subjects />} />
         <Route path="/about" element={<About />} />
 
-        {/* Admin panel routes */}
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/dashboard" element={<AdminDashboard />} />
-        <Route path="/schedule" element={<AdminSchedule />} />
-        <Route path="/statistics" element={<AdminStatistics />} />
-        <Route path="/messages" element={<AdminMessages />} />
-        <Route path="/demo" element={<AdminTeacherDemo />} />
-        <Route path="/course-builder" element={<CourseBuilder />} />
-        <Route path="/test-builder" element={<TestBuilder />} />
-
-        {/* Teacher panel routes */}
-        <Route path="/teacher" element={<TeacherDashboard />} />
-        <Route path="/teacher/stats" element={<TeacherStats />} />
-        <Route path="/teacher/live-session" element={<TeacherLiveSession />} />
-        <Route path="/teacher/schedule" element={<TeacherSchedule />} />
-        <Route path="/teacher/messages" element={<TeacherMessages />} />
-        <Route path="/teacher/payments" element={<TeacherPayments />} />
-
-        {/* Student panel routes */}
-        <Route path="/student" element={<StudentDashboard />} />
-        <Route path="/student/live-session" element={<StudentLiveSession />} />
-        <Route path="/student/schedule" element={<StudentSchedule />} />
-        <Route path="/student/groups" element={<StudentGroups />} />
-        <Route path="/student/messages" element={<StudentMessages />} />
-
-        {/* Registration Routes */}
+        {/* ---- Registration (public — email-verified users) ---- */}
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/register" element={<RegisterAs />} />
-
-        {/* Student Registration */}
-        <Route
-          path="/register/student/personal-info"
-          element={<PersonalInfo />}
-        />
-        <Route
-          path="/register/student/subjects"
-          element={<SubjectSelection />}
-        />
+        <Route path="/register/student/personal-info" element={<PersonalInfo />} />
+        <Route path="/register/student/subjects" element={<SubjectSelection />} />
         <Route path="/register/student/exam-start" element={<ExamStart />} />
-        <Route
-          path="/register/student/exam-in-progress"
-          element={<ExamInProgress />}
-        />
-        <Route
-          path="/register/student/exam/:subject/:level"
-          element={<Exam />}
-        />
+        <Route path="/register/student/exam-in-progress" element={<ExamInProgress />} />
+        <Route path="/register/student/exam/:subject/:level" element={<Exam />} />
         <Route path="/register/student/exam-result" element={<ExamResult />} />
-        <Route
-          path="/register/student/placement-group"
-          element={<PlacementAndGroupAssignment />}
-        />
-
-        {/* Teacher Registration */}
-        <Route
-          path="/register/teacher/subjects"
-          element={<TeacherSubjects />}
-        />
-        <Route
-          path="/register/teacher/exam/:subject"
-          element={<TeacherExam />}
-        />
-        <Route
-          path="/register/teacher/demo-session"
-          element={<DemoSession />}
-        />
-
-        {/* Employee Registration */}
+        <Route path="/register/student/placement-group" element={<PlacementAndGroupAssignment />} />
+        <Route path="/register/teacher/subjects" element={<TeacherSubjects />} />
+        <Route path="/register/teacher/exam/:subject" element={<TeacherExam />} />
+        <Route path="/register/teacher/demo-session" element={<DemoSession />} />
         <Route path="/register/employee" element={<Employee />} />
 
-        {/* Lesson Environment */}
-        <Route path="/lesson-environment" element={<LessonEnvironment />} />
+        {/* ---- Admin panel (admin only) ---- */}
+        <Route path="/admin" element={<Admin><AdminDashboard /></Admin>} />
+        <Route path="/admin-dashboard" element={<Admin><AdminDashboard /></Admin>} />
+        <Route path="/dashboard" element={<Admin><AdminDashboard /></Admin>} />
+        <Route path="/schedule" element={<Admin><AdminSchedule /></Admin>} />
+        <Route path="/statistics" element={<Admin><AdminStatistics /></Admin>} />
+        <Route path="/messages" element={<Admin><AdminMessages /></Admin>} />
+        <Route path="/demo" element={<Admin><AdminTeacherDemo /></Admin>} />
+        <Route path="/demo/:teacherId" element={<Admin><AdminTeacherDemo /></Admin>} />
+        <Route path="/course-builder" element={<Admin><CourseBuilder /></Admin>} />
+        <Route path="/test-builder" element={<Admin><TestBuilder /></Admin>} />
 
-        {/* Unit View */}
-        <Route path="/unit-view" element={<UnitView />} />
+        {/* ---- Teacher panel (teacher only) ---- */}
+        <Route path="/teacher" element={<Teacher><TeacherDashboard /></Teacher>} />
+        <Route path="/teacher/stats" element={<Teacher><TeacherStats /></Teacher>} />
+        <Route path="/teacher/live-session" element={<Teacher><TeacherLiveSession /></Teacher>} />
+        <Route path="/teacher/schedule" element={<Teacher><TeacherSchedule /></Teacher>} />
+        <Route path="/teacher/messages" element={<Teacher><TeacherMessages /></Teacher>} />
+        <Route path="/teacher/payments" element={<Teacher><TeacherPayments /></Teacher>} />
+
+        {/* ---- Student panel (student only) ---- */}
+        <Route path="/student" element={<Student><StudentDashboard /></Student>} />
+        <Route path="/student/courses" element={<Student><StudentCourses /></Student>} />
+        <Route path="/student/live-session" element={<Student><StudentLiveSession /></Student>} />
+        <Route path="/student/schedule" element={<Student><StudentSchedule /></Student>} />
+        <Route path="/student/groups" element={<Student><StudentGroups /></Student>} />
+        <Route path="/student/messages" element={<Student><StudentMessages /></Student>} />
+
+        {/* ---- Authenticated routes (any logged-in user) ---- */}
+        <Route path="/lesson-environment" element={<LoggedIn><LessonEnvironment /></LoggedIn>} />
+        <Route path="/unit-view" element={<LoggedIn><UnitView /></LoggedIn>} />
       </Routes>
     </Router>
   );

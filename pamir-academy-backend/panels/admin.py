@@ -6,6 +6,9 @@ from .models import (
     ScheduleChangeRequest,
     GroupChangeRequest,
     Message,
+    Announcement,
+    Payment,
+    LiveSession,
 )
 
 
@@ -50,3 +53,27 @@ class MessageAdmin(admin.ModelAdmin):
     @admin.display(description="Text")
     def text_short(self, obj):
         return obj.text[:60]
+
+
+@admin.register(Announcement)
+class AnnouncementAdmin(admin.ModelAdmin):
+    list_display = ["text_short", "audience", "created_by", "created_at"]
+    list_filter = ["audience"]
+
+    @admin.display(description="Text")
+    def text_short(self, obj):
+        return obj.text[:80]
+
+
+@admin.register(Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ["teacher", "student", "subject", "amount", "status", "date"]
+    list_filter = ["status", "date"]
+    search_fields = ["teacher__email", "student__email"]
+
+
+@admin.register(LiveSession)
+class LiveSessionAdmin(admin.ModelAdmin):
+    list_display = ["teacher", "student", "subject", "topic", "scheduled_at", "status"]
+    list_filter = ["status"]
+    search_fields = ["teacher__email", "student__email", "topic"]

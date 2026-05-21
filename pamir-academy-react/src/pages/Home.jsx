@@ -4,12 +4,24 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import LoginModal from '../components/LoginModal';
 import ApplyModal from '../components/ApplyModal';
-import '../styles/general.css';
-import '../styles/home.css';
-import '../styles/main-page-responsive-css/responsive-general.css';
-import '../styles/main-page-responsive-css/responsive-home.css';
-import '../styles/footer/footer.css';
-import '../styles/footer/footer-responsive-css/responsive-footer.css';
+
+const ChevronLeft = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+  </svg>
+);
+
+const ChevronRight = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+  </svg>
+);
+
+const ArrowRight = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+  </svg>
+);
 
 const Home = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -60,18 +72,14 @@ const Home = () => {
   }, []);
 
   const handleLeftSlider = () => {
-    if (currentImageIndex > 0) {
-      setCurrentImageIndex(currentImageIndex - 1);
-    }
+    if (currentImageIndex > 0) setCurrentImageIndex(currentImageIndex - 1);
   };
 
   const handleRightSlider = () => {
-    if (currentImageIndex < imageFormatList.length - 1) {
-      setCurrentImageIndex(currentImageIndex + 1);
-    }
+    if (currentImageIndex < imageFormatList.length - 1) setCurrentImageIndex(currentImageIndex + 1);
   };
 
-  const CARDS_TO_SHOW = 3; // Always show 3 cards at a time for laptop screens
+  const CARDS_TO_SHOW = 3;
 
   const students = [
     { name: 'Akim Bek', title: 'English', image: '/profile-img/students/student1.avif', description: '"Pamir Academy is the best place to study English. I learned more in one year here than 10 years at school "' },
@@ -98,240 +106,170 @@ const Home = () => {
   const visibleTeachers = teachers.slice(teacherIndex, teacherIndex + CARDS_TO_SHOW);
   const visibleTeam = team.slice(teamIndex, teamIndex + CARDS_TO_SHOW);
 
+  // Reusable slider nav
+  const SliderNav = ({ index, setIndex, total, cardsToShow }) => (
+    <div className="flex items-center justify-center gap-6 mt-6">
+      <button
+        className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        onClick={() => setIndex(Math.max(0, index - 1))}
+        disabled={index === 0}
+      >
+        <ChevronLeft className="w-5 h-5 text-gray-700" />
+      </button>
+      <div className="flex items-center gap-2">
+        {Array.from({ length: Math.max(0, total - cardsToShow + 1) }).map((_, i) => (
+          <div
+            key={i}
+            className={`h-2 rounded-full transition-all ${i === index ? 'bg-brand w-6' : 'bg-gray-300 w-2'}`}
+          />
+        ))}
+      </div>
+      <button
+        className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        onClick={() => setIndex(Math.min(total - cardsToShow, index + 1))}
+        disabled={index >= total - cardsToShow}
+      >
+        <ChevronRight className="w-5 h-5 text-gray-700" />
+      </button>
+    </div>
+  );
+
+  // Reusable profile card
+  const ProfileCard = ({ person }) => (
+    <div className="w-full max-w-[300px] bg-white rounded-2xl shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 relative pt-[70px] pb-6 px-4 flex flex-col items-center">
+      <div className="absolute -top-[60px] left-1/2 -translate-x-1/2 w-[120px] h-[120px]">
+        <img
+          className="w-full h-full border-brand border-[3px] rounded-full object-cover bg-white block"
+          src={person.image}
+          alt={person.name}
+          onError={(e) => { e.target.src = '/profile-img/abc.png'; }}
+        />
+      </div>
+      <div className="flex flex-col items-center w-full mt-2">
+        <p className="text-brand font-semibold text-lg m-0 mb-2">{person.name}</p>
+        <p className="text-gray-500 text-sm font-medium m-0 mb-4">{person.title}</p>
+      </div>
+      <p className="text-gray-600 text-sm leading-relaxed text-center m-0 line-clamp-6">{person.description}</p>
+    </div>
+  );
+
+  // Section title component
+  const SectionTitle = ({ title }) => (
+    <div className="mt-16 mb-8">
+      <h2 className="text-2xl sm:text-3xl font-bold text-brand text-center">{title}</h2>
+      <div className="w-16 h-1 bg-brand rounded-full mx-auto mt-3"></div>
+    </div>
+  );
+
   return (
     <div>
-      <Header 
-        onLoginClick={() => setShowLoginModal(true)} 
-        onApplyClick={() => setShowApplyModal(true)} 
+      <Header
+        onLoginClick={() => setShowLoginModal(true)}
+        onApplyClick={() => setShowApplyModal(true)}
       />
-      
+
       {showLoginModal && (
-        <LoginModal 
-          onClose={() => setShowLoginModal(false)} 
+        <LoginModal
+          onClose={() => setShowLoginModal(false)}
           onSwitchToApply={() => { setShowLoginModal(false); setShowApplyModal(true); }}
         />
       )}
-      
+
       {showApplyModal && (
-        <ApplyModal 
-          onClose={() => setShowApplyModal(false)} 
+        <ApplyModal
+          onClose={() => setShowApplyModal(false)}
           onSwitchToLogin={() => { setShowApplyModal(false); setShowLoginModal(true); }}
         />
       )}
 
-      <div className="main-body-without-logo-apply-css">
-        <div className="inside-main-body-without-logo-apply-css">
-          {/* Front page learn more */}
-          <div className="front-page-learn-more-container-css">
-            <div className="front-page-image-container-css">
-              <div 
-                className="front-page-image-css front-page-image-js"
-                style={{
-                  backgroundImage: `url(/front-img/${imageFormatList[currentImageIndex]})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  width: '100%',
-                  height: '100%'
-                }}
-              ></div>
-            </div>
-            <div className="front-page-learn-more-black">
-              <p className="pamir-academy-learn-more-css">Pamir Academy</p>
-              <Link className="learn-more-button-css" to="/learn-more">Learn More</Link>
-              <div className="learn-more-short-text-css">
-                <p className="learn-more-short-text-js">{inputShortText[currentImageIndex]}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Moving front images */}
-          <div className="moving-front-image-container moving-for-large-screen">
-            <button className="moving-button-css left-button-slider-js" onClick={handleLeftSlider}>
-              <img className="moving-icon" src="/front-img/moving-buttons/moving-left.png" alt="Previous" />
-            </button>
-            <div className="moving-point-container-css">
-              {imageFormatList.map((_, index) => (
-                <div 
-                  key={index}
-                  className={`moving-point-css moving-points-js ${index === currentImageIndex ? 'active' : ''}`}
-                ></div>
-              ))}
-            </div>
-            <button className="moving-button-css right-button-slider-js" onClick={handleRightSlider}>
-              <img className="moving-icon" src="/front-img/moving-buttons/moving-right.png" alt="Next" />
-            </button>
-          </div>
-
-          {/* Students Teachers Statistics */}
-          <div className="students-teachers-container-css">
-            <div className="countries-container-css">
-              <p className="countries-number-css counter-js">{counters.countries}+</p>
-              <p className="countries-name-css">Countries</p>
-            </div>
-            <div className="teachers-container-css">
-              <p className="teachers-number-css counter-js">{counters.teachers}+</p>
-              <p className="teachers-name-css">Teachers</p>
-            </div>
-            <div className="students-container-css">
-              <p className="students-number-css counter-js">{counters.students}+</p>
-              <p className="students-name-css">Students</p>
-            </div>
-          </div>
-
-          {/* Our Students */}
-          <div className="title-our-team-css">
-            <div className="our-team-white-banner-css">
-              <p className="our-team-text-css">Our Students</p>
-            </div>
-          </div>
-
-          {/* Our Students Profiles */}
-          <div className="our-team-main-container-css">
-            {visibleStudents.map((student) => (
-              <div key={`${student.name}-${student.title}`} className="our-team-block-container-css student-profile-container-js">
-                <div className="our-team-profile-img-container-css">
-                  <img 
-                    className="our-team-profile-img-css" 
-                    src={student.image} 
-                    alt={student.name}
-                    onError={(e) => {
-                      e.target.src = '/profile-img/abc.png'; // Fallback image
-                    }}
-                  />
-                </div>
-                <div className="our-team-name-title-container-css mt-4">
-                  <p className="our-team-name-css mb-2">{student.name}</p>
-                  <p className="our-team-title-css mb-4">{student.title}</p>
-                </div>
-                <p className="our-team-profile-discription-css mt-2">{student.description}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Moving profile blocks - Students */}
-          <div className="moving-front-image-container">
-            <button 
-              className="moving-button-css student-moving-left-button-js"
-              onClick={() => setStudentIndex(Math.max(0, studentIndex - 1))}
-              disabled={studentIndex === 0}
+      <div className="max-w-[1100px] mx-auto px-5">
+        {/* Hero Section */}
+        <div className="w-full aspect-[21/9] sm:aspect-[21/8] relative overflow-hidden rounded-2xl mt-8">
+          <div
+            className="w-full h-full bg-cover bg-center transition-opacity duration-700"
+            style={{ backgroundImage: `url(/front-img/${imageFormatList[currentImageIndex]})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end p-8 sm:p-12">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-3">Pamir Academy</h1>
+            <p className="text-white/80 text-sm sm:text-base max-w-xl mb-6">{inputShortText[currentImageIndex]}</p>
+            <Link
+              to="/learn-more"
+              className="inline-flex items-center gap-2 bg-brand hover:bg-brand-dark text-white px-6 py-3 rounded-full font-medium transition-all hover:shadow-lg w-fit no-underline"
             >
-              <img className="moving-icon" src="/front-img/moving-buttons/moving-left.png" alt="Previous" />
-            </button>
-            <div className="moving-point-container-css">
-              {Array.from({ length: Math.max(0, students.length - CARDS_TO_SHOW + 1) }).map((_, index) => (
-                <div 
-                  key={index}
-                  className={`moving-point-css student-moving-profile-point-js ${index === studentIndex ? 'active' : ''}`}
-                ></div>
-              ))}
-            </div>
-            <button 
-              className="moving-button-css student-moving-right-button-js"
-              onClick={() => setStudentIndex(Math.min(students.length - CARDS_TO_SHOW, studentIndex + 1))}
-              disabled={studentIndex >= students.length - CARDS_TO_SHOW}
-            >
-              <img className="moving-icon" src="/front-img/moving-buttons/moving-right.png" alt="Next" />
-            </button>
-          </div>
-
-          {/* Our Teachers */}
-          <div className="title-our-team-css">
-            <div className="our-team-white-banner-css">
-              <p className="our-team-text-css">Our Teachers</p>
-            </div>
-          </div>
-
-          {/* Our Teachers Profiles */}
-          <div className="our-team-main-container-css">
-            {visibleTeachers.map((teacher) => (
-              <div key={`${teacher.name}-${teacher.title}`} className="our-team-block-container-css teacher-profile-container-js">
-                <div className="our-team-profile-img-container-css">
-                  <img className="our-team-profile-img-css" src={teacher.image} alt={teacher.name} />
-                </div>
-                <div className="our-team-name-title-container-css mt-4">
-                  <p className="our-team-name-css mb-2">{teacher.name}</p>
-                  <p className="our-team-title-css mb-4">{teacher.title}</p>
-                </div>
-                <p className="our-team-profile-discription-css mt-2">{teacher.description}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Moving profile blocks - Teachers */}
-          <div className="moving-front-image-container">
-            <button 
-              className="moving-button-css teacher-moving-left-button-js"
-              onClick={() => setTeacherIndex(Math.max(0, teacherIndex - 1))}
-              disabled={teacherIndex === 0}
-            >
-              <img className="moving-icon" src="/front-img/moving-buttons/moving-left.png" alt="Previous" />
-            </button>
-            <div className="moving-point-container-css">
-              {Array.from({ length: Math.max(0, teachers.length - CARDS_TO_SHOW + 1) }).map((_, index) => (
-                <div 
-                  key={index}
-                  className={`moving-point-css teacher-moving-profile-point-js ${index === teacherIndex ? 'active' : ''}`}
-                ></div>
-              ))}
-            </div>
-            <button 
-              className="moving-button-css teacher-moving-right-button-js"
-              onClick={() => setTeacherIndex(Math.min(teachers.length - CARDS_TO_SHOW, teacherIndex + 1))}
-              disabled={teacherIndex >= teachers.length - CARDS_TO_SHOW}
-            >
-              <img className="moving-icon" src="/front-img/moving-buttons/moving-right.png" alt="Next" />
-            </button>
-          </div>
-
-          {/* Our Team */}
-          <div className="title-our-team-css">
-            <div className="our-team-white-banner-css">
-              <p className="our-team-text-css">Our Team</p>
-            </div>
-          </div>
-
-          {/* Our Team Profiles */}
-          <div className="our-team-main-container-css">
-            {visibleTeam.map((member) => (
-              <div key={`${member.name}-${member.title}`} className="our-team-block-container-css our-team-profile-container-js">
-                <div className="our-team-profile-img-container-css">
-                  <img className="our-team-profile-img-css" src={member.image} alt={member.name} />
-                </div>
-                <div className="our-team-name-title-container-css mt-4">
-                  <p className="our-team-name-css mb-2">{member.name}</p>
-                  <p className="our-team-title-css mb-4">{member.title}</p>
-                </div>
-                <p className="our-team-profile-discription-css mt-2">{member.description}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Moving profile blocks - Team */}
-          <div className="moving-front-image-container">
-            <button 
-              className="moving-button-css our-team-moving-left-button-js"
-              onClick={() => setTeamIndex(Math.max(0, teamIndex - 1))}
-              disabled={teamIndex === 0}
-            >
-              <img className="moving-icon" src="/front-img/moving-buttons/moving-left.png" alt="Previous" />
-            </button>
-            <div className="moving-point-container-css">
-              {Array.from({ length: Math.max(0, team.length - CARDS_TO_SHOW + 1) }).map((_, index) => (
-                <div 
-                  key={index}
-                  className={`moving-point-css our-team-moving-profile-point-js ${index === teamIndex ? 'active' : ''}`}
-                ></div>
-              ))}
-            </div>
-            <button 
-              className="moving-button-css our-team-moving-right-button-js"
-              onClick={() => setTeamIndex(Math.min(team.length - CARDS_TO_SHOW, teamIndex + 1))}
-              disabled={teamIndex >= team.length - CARDS_TO_SHOW}
-            >
-              <img className="moving-icon" src="/front-img/moving-buttons/moving-right.png" alt="Next" />
-            </button>
+              Learn More
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
+
+        {/* Hero Slider Controls */}
+        <div className="flex items-center justify-center gap-6 mt-4">
+          <button
+            className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            onClick={handleLeftSlider}
+            disabled={currentImageIndex === 0}
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-700" />
+          </button>
+          <div className="flex items-center gap-2">
+            {imageFormatList.map((_, index) => (
+              <div
+                key={index}
+                className={`h-2 rounded-full transition-all ${index === currentImageIndex ? 'bg-brand w-6' : 'bg-gray-300 w-2'}`}
+              />
+            ))}
+          </div>
+          <button
+            className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 hover:shadow-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            onClick={handleRightSlider}
+            disabled={currentImageIndex === imageFormatList.length - 1}
+          >
+            <ChevronRight className="w-5 h-5 text-gray-700" />
+          </button>
+        </div>
+
+        {/* Statistics Bar */}
+        <div className="bg-gradient-to-r from-brand to-brand-dark rounded-2xl mt-16 py-10 px-4 flex justify-evenly items-center">
+          <div className="flex flex-col items-center">
+            <p className="text-white text-4xl sm:text-5xl font-bold m-0">{counters.countries}+</p>
+            <p className="text-white/70 text-sm font-medium tracking-wide uppercase mt-2 m-0">Countries</p>
+          </div>
+          <div className="flex flex-col items-center">
+            <p className="text-white text-4xl sm:text-5xl font-bold m-0">{counters.teachers}+</p>
+            <p className="text-white/70 text-sm font-medium tracking-wide uppercase mt-2 m-0">Teachers</p>
+          </div>
+          <div className="flex flex-col items-center">
+            <p className="text-white text-4xl sm:text-5xl font-bold m-0">{counters.students}+</p>
+            <p className="text-white/70 text-sm font-medium tracking-wide uppercase mt-2 m-0">Students</p>
+          </div>
+        </div>
+
+        {/* Our Students */}
+        <SectionTitle title="Our Students" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center pt-16">
+          {visibleStudents.map((student) => (
+            <ProfileCard key={`${student.name}-${student.title}`} person={student} />
+          ))}
+        </div>
+        <SliderNav index={studentIndex} setIndex={setStudentIndex} total={students.length} cardsToShow={CARDS_TO_SHOW} />
+
+        {/* Our Teachers */}
+        <SectionTitle title="Our Teachers" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center pt-16">
+          {visibleTeachers.map((teacher) => (
+            <ProfileCard key={`${teacher.name}-${teacher.title}`} person={teacher} />
+          ))}
+        </div>
+        <SliderNav index={teacherIndex} setIndex={setTeacherIndex} total={teachers.length} cardsToShow={CARDS_TO_SHOW} />
+
+        {/* Our Team */}
+        <SectionTitle title="Our Team" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center pt-16">
+          {visibleTeam.map((member) => (
+            <ProfileCard key={`${member.name}-${member.title}`} person={member} />
+          ))}
+        </div>
+        <SliderNav index={teamIndex} setIndex={setTeamIndex} total={team.length} cardsToShow={CARDS_TO_SHOW} />
       </div>
 
       <Footer />
@@ -340,4 +278,3 @@ const Home = () => {
 };
 
 export default Home;
-

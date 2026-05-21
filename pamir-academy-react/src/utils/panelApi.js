@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "./api";
+import { apiGet, apiPost, apiPatch } from "./api";
 
 // ──── Schedule ────
 
@@ -64,4 +64,68 @@ export async function getStudentDashboard() {
 
 export async function getTeacherDashboard() {
   return apiGet("/dashboard/teacher/");
+}
+
+// ──── Student Course Catalog ────
+
+export async function getStudentCourses() {
+  return apiGet("/courses/");
+}
+
+export async function getStudentCourseDetail(courseId) {
+  return apiGet(`/courses/${courseId}/`);
+}
+
+// ──── Announcements ────
+
+export async function getAnnouncements() {
+  return apiGet("/announcements/");
+}
+
+// ──── Schedule Slot Updates ────
+
+export async function updateScheduleSlot(slotId, status) {
+  return apiPatch(`/schedule/${slotId}/`, { status });
+}
+
+export async function setAvailability(slots) {
+  return apiPost("/schedule/set-availability/", { slots });
+}
+
+// ──── Teacher Stats & Payments ────
+
+export async function getTeacherStats() {
+  return apiGet("/teacher/stats/");
+}
+
+export async function getTeacherPayments() {
+  return apiGet("/teacher/payments/");
+}
+
+// ──── Live Sessions ────
+
+export async function getMySessions() {
+  return apiGet("/sessions/");
+}
+
+export async function updateSessionStatus(sessionId, status) {
+  return apiPatch(`/sessions/${sessionId}/`, { status });
+}
+
+// ──── Admin ────
+
+export async function getAdminDashboard() {
+  return apiGet("/dashboard/admin/");
+}
+
+export async function getAdminSchedule() {
+  return apiGet("/admin/schedule/");
+}
+
+export async function getAdminStatistics() {
+  return apiGet("/admin/statistics/");
+}
+
+export async function adminTeacherDecision(teacherId, decision) {
+  return apiPost(`/admin/teacher/${teacherId}/decision/`, { decision });
 }

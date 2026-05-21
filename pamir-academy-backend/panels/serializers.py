@@ -7,6 +7,9 @@ from .models import (
     ScheduleChangeRequest,
     GroupChangeRequest,
     Message,
+    Announcement,
+    Payment,
+    LiveSession,
 )
 
 User = get_user_model()
@@ -126,3 +129,37 @@ class MessageSerializer(serializers.ModelSerializer):
 
 class MessageCreateSerializer(serializers.Serializer):
     text = serializers.CharField(min_length=1)
+
+
+class AnnouncementSerializer(serializers.ModelSerializer):
+    created_by_name = serializers.CharField(source="created_by.display_name", read_only=True, default="")
+
+    class Meta:
+        model = Announcement
+        fields = ["id", "text", "audience", "created_by_name", "created_at"]
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    student_name = serializers.CharField(source="student.display_name", read_only=True, default="")
+    subject_name = serializers.CharField(source="subject.name", read_only=True, default="")
+
+    class Meta:
+        model = Payment
+        fields = [
+            "id", "date", "student_name", "subject_name", "level",
+            "sessions", "rate", "amount", "status", "method",
+        ]
+
+
+class LiveSessionSerializer(serializers.ModelSerializer):
+    teacher_name = serializers.CharField(source="teacher.display_name", read_only=True, default="")
+    student_name = serializers.CharField(source="student.display_name", read_only=True, default="")
+    subject_name = serializers.CharField(source="subject.name", read_only=True, default="")
+
+    class Meta:
+        model = LiveSession
+        fields = [
+            "id", "teacher_name", "student_name", "subject_name",
+            "topic", "scheduled_at", "duration_minutes", "status", "notes", "created_at",
+            "room_id",
+        ]

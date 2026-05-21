@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
     const tokens = getTokens();
     if (tokens?.access) {
       apiGet("/auth/me/")
-        .then((user) => syncUser(user))
+        .then((data) => syncUser(data.user || data))
         .catch(() => {
           clearTokens();
           syncUser(null);
@@ -93,7 +93,12 @@ export const AuthProvider = ({ children }) => {
         setTokens(data.tokens);
         syncUser(data.user);
       }
-      return { success: true, user: data.user };
+      return {
+        success: true,
+        user: data.user,
+        redirect: data.redirect || "/",
+        registration_complete: data.registration_complete,
+      };
     } catch (err) {
       const msg = err.message || "Verification failed.";
       setError(msg);
@@ -120,13 +125,25 @@ export const AuthProvider = ({ children }) => {
         return { success: false, error: msg };
       }
       const data = await apiPost("/auth/login/", { email, password });
-      setTokens(data.tokens);
-      syncUser(data.user);
-      return { success: true, user: data.user };
+
+      if (data.tokens) {
+        setTokens(data.tokens);
+        syncUser(data.user);
+      }
+
+      return {
+        success: true,
+        user: data.user,
+        redirect: data.redirect || "/",
+        registration_complete: data.registration_complete,
+      };
     } catch (err) {
       const msg = err.message || "Invalid email or password.";
+      const redirect = err.data?.redirect || null;
+      const registrationComplete = err.data?.registration_complete ?? null;
+
       setError(msg);
-      return { success: false, error: msg };
+      return { success: false, error: msg, redirect, registration_complete: registrationComplete };
     }
   };
 
@@ -150,7 +167,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const data = await apiPut("/auth/me/", profileData);
-      syncUser(data);
+      syncUser(data.user || data);
       return { success: true };
     } catch (err) {
       const msg = err.message || "Failed to update profile.";

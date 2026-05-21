@@ -1,32 +1,14 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../contexts/AuthContext";
+import { getTeacherDashboard, getAnnouncements } from "../../../utils/panelApi";
 import TeacherLayout from "./TeacherLayout";
 
-/* ---- Sample Data ---- */
-const TEACHER_NAME = "Amina";
-
-const TODAY_CLASSES = [
-  { id: 1, student: "Ahmad Nazari", subject: "English", level: "Elementary", time: "9:00 AM", status: "upcoming" },
-  { id: 2, student: "Fatima Karimova", subject: "English", level: "Intermediate", time: "11:00 AM", status: "upcoming" },
-  { id: 3, student: "Omar Hassan", subject: "English", level: "Beginner", time: "2:00 PM", status: "upcoming" },
-  { id: 4, student: "Layla Ahmadi", subject: "English", level: "Advanced", time: "4:00 PM", status: "upcoming" },
-];
-
-const TOMORROW_CLASSES = [
-  { id: 5, student: "Daniyal Mirzo", subject: "English", level: "Elementary", time: "10:00 AM", status: "scheduled" },
-  { id: 6, student: "Ahmad Nazari", subject: "English", level: "Elementary", time: "1:00 PM", status: "scheduled" },
-];
-
-const QUICK_STATS = {
-  totalStudents: 12,
-  classesThisWeek: 18,
-  hoursThisMonth: 42,
-  pendingPayment: "$640",
-};
-
-const ANNOUNCEMENTS = [
-  { id: 1, text: "Platform maintenance scheduled for Sunday, Mar 22 at 2 AM UTC.", time: "2 hours ago" },
-  { id: 2, text: "New teaching resources have been uploaded for English — Intermediate level.", time: "1 day ago" },
-];
+function formatHour(h) {
+  const suffix = h >= 12 ? "PM" : "AM";
+  const display = h > 12 ? h - 12 : h === 0 ? 12 : h;
+  return `${display}:00 ${suffix}`;
+}
 
 /* ---- SVG Icons ---- */
 const ClockIcon = () => (
@@ -67,10 +49,51 @@ const ChevronRight = () => (
 
 export default function TeacherDashboard() {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const displayName = currentUser?.display_name || currentUser?.email?.split("@")[0] || "Teacher";
+
+  const [dashData, setDashData] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const [dash, ann] = await Promise.all([
+          getTeacherDashboard(),
+          getAnnouncements().catch(() => []),
+        ]);
+        if (!cancelled) {
+          setDashData(dash);
+          setAnnouncements(ann);
+        }
+      } catch (err) { console.error("Dashboard fetch error:", err); }
+      finally { if (!cancelled) setLoading(false); }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const now = new Date();
   const greeting = now.getHours() < 12 ? "Good morning" : now.getHours() < 18 ? "Good afternoon" : "Good evening";
   const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+
+  const todayDow = now.getDay();
+  const tomorrowDow = (todayDow + 1) % 7;
+
+  const schedule = dashData?.schedule || [];
+  const todayClasses = schedule.filter(s => s.day_of_week === todayDow);
+  const tomorrowClasses = schedule.filter(s => s.day_of_week === tomorrowDow);
+
+  if (loading) {
+    return (
+      <TeacherLayout activePage="t-dashboard">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="w-10 h-10 border-4 border-[#006236] border-t-transparent rounded-full animate-spin" />
+        </div>
+      </TeacherLayout>
+    );
+  }
 
   return (
     <TeacherLayout activePage="t-dashboard">
@@ -79,10 +102,10 @@ export default function TeacherDashboard() {
         {/* Welcome header */}
         <div className="flex items-end justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-white text-[clamp(24px,3vw,40px)] font-bold m-0">
-              {greeting}, {TEACHER_NAME}
+            <h1 className="text-gray-800 text-[clamp(24px,3vw,40px)] font-bold m-0">
+              {greeting}, {displayName}
             </h1>
-            <p className="text-white/60 text-sm m-0 mt-1">{dateStr}</p>
+            <p className="text-gray-500 text-sm m-0 mt-1">{dateStr}</p>
           </div>
           <button
             onClick={() => navigate("/teacher/schedule")}
@@ -95,12 +118,12 @@ export default function TeacherDashboard() {
         {/* Quick Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { label: "Total Students", value: QUICK_STATS.totalStudents, icon: <UsersIcon />, color: "bg-[#006236]" },
-            { label: "Classes This Week", value: QUICK_STATS.classesThisWeek, icon: <CalendarIcon />, color: "bg-blue-500" },
-            { label: "Hours This Month", value: QUICK_STATS.hoursThisMonth, icon: <HoursIcon />, color: "bg-[#006236]" },
-            { label: "Pending Payment", value: QUICK_STATS.pendingPayment, icon: <DollarIcon />, color: "bg-amber-500" },
+            { label: "Total Students", value: dashData?.total_students ?? 0, icon: <UsersIcon />, color: "bg-[#006236]" },
+            { label: "Classes This Week", value: dashData?.classes_this_week ?? 0, icon: <CalendarIcon />, color: "bg-blue-500" },
+            { label: "Hours This Month", value: "—", icon: <HoursIcon />, color: "bg-[#006236]" },
+            { label: "Pending Payment", value: "—", icon: <DollarIcon />, color: "bg-amber-500" },
           ].map((card, i) => (
-            <div key={i} className="bg-[#d9d9d9] rounded-2xl p-[clamp(14px,1.5vw,24px)] flex items-center gap-3">
+            <div key={i} className="bg-white rounded-2xl p-[clamp(14px,1.5vw,24px)] flex items-center gap-3 border border-[#006236]/10">
               <div className={`${card.color} w-11 h-11 rounded-xl flex items-center justify-center text-white shrink-0`}>
                 {card.icon}
               </div>
@@ -113,26 +136,28 @@ export default function TeacherDashboard() {
         </div>
 
         {/* Today's Classes */}
-        <div className="bg-[#d9d9d9] rounded-2xl p-[clamp(16px,2vw,28px)]">
+        <div className="bg-white rounded-2xl p-[clamp(16px,2vw,28px)] border border-[#006236]/10">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[#006236] text-[clamp(14px,1.4vw,20px)] font-bold m-0">Today's Classes</h3>
-            <span className="text-gray-500 text-xs">{TODAY_CLASSES.length} sessions</span>
+            <span className="text-gray-500 text-xs">{todayClasses.length} sessions</span>
           </div>
           <div className="flex flex-col gap-3">
-            {TODAY_CLASSES.map((cls) => (
+            {todayClasses.length === 0 ? (
+              <p className="text-gray-400 text-sm m-0 py-4 text-center">No classes scheduled for today.</p>
+            ) : todayClasses.map((cls) => (
               <div key={cls.id} className="bg-white rounded-xl px-5 py-3.5 flex items-center justify-between flex-wrap gap-3 hover:bg-[#006236]/5 transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#006236] flex items-center justify-center text-white font-bold text-sm shrink-0">
-                    {cls.student.split(" ").map(w => w[0]).join("")}
+                    {(cls.counterpart_name || "?").split(" ").map(w => w[0]).join("")}
                   </div>
                   <div>
-                    <p className="text-[#006236] font-semibold text-sm m-0">{cls.student}</p>
-                    <p className="text-gray-400 text-xs m-0">{cls.subject} — {cls.level}</p>
+                    <p className="text-[#006236] font-semibold text-sm m-0">{cls.counterpart_name || "Student"}</p>
+                    <p className="text-gray-400 text-xs m-0">{cls.subject_name} — {cls.level}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="text-[#006236] text-sm font-semibold flex items-center gap-1">
-                    <ClockIcon /> {cls.time}
+                    <ClockIcon /> {formatHour(cls.hour)}
                   </span>
                   <button
                     onClick={() => navigate("/teacher/live-session")}
@@ -148,25 +173,26 @@ export default function TeacherDashboard() {
 
         {/* Bottom row: Tomorrow + Announcements */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Tomorrow's Classes */}
-          <div className="bg-[#d9d9d9] rounded-2xl p-[clamp(16px,2vw,28px)]">
+          <div className="bg-white rounded-2xl p-[clamp(16px,2vw,28px)] border border-[#006236]/10">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-[#006236] text-[clamp(14px,1.4vw,20px)] font-bold m-0">Tomorrow</h3>
-              <span className="text-gray-500 text-xs">{TOMORROW_CLASSES.length} sessions</span>
+              <span className="text-gray-500 text-xs">{tomorrowClasses.length} sessions</span>
             </div>
             <div className="flex flex-col gap-3">
-              {TOMORROW_CLASSES.map((cls) => (
+              {tomorrowClasses.length === 0 ? (
+                <p className="text-gray-400 text-sm m-0 py-4 text-center">No classes tomorrow.</p>
+              ) : tomorrowClasses.map((cls) => (
                 <div key={cls.id} className="bg-white rounded-xl px-5 py-3 flex items-center justify-between flex-wrap gap-3">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-[#006236]/15 flex items-center justify-center text-[#006236] font-bold text-xs shrink-0">
-                      {cls.student.split(" ").map(w => w[0]).join("")}
+                      {(cls.counterpart_name || "?").split(" ").map(w => w[0]).join("")}
                     </div>
                     <div>
-                      <p className="text-[#006236] font-semibold text-sm m-0">{cls.student}</p>
-                      <p className="text-gray-400 text-xs m-0">{cls.subject} — {cls.level}</p>
+                      <p className="text-[#006236] font-semibold text-sm m-0">{cls.counterpart_name || "Student"}</p>
+                      <p className="text-gray-400 text-xs m-0">{cls.subject_name} — {cls.level}</p>
                     </div>
                   </div>
-                  <span className="text-gray-500 text-xs flex items-center gap-1"><ClockIcon /> {cls.time}</span>
+                  <span className="text-gray-500 text-xs flex items-center gap-1"><ClockIcon /> {formatHour(cls.hour)}</span>
                 </div>
               ))}
             </div>
@@ -178,17 +204,18 @@ export default function TeacherDashboard() {
             </button>
           </div>
 
-          {/* Announcements */}
-          <div className="bg-[#d9d9d9] rounded-2xl p-[clamp(16px,2vw,28px)]">
+          <div className="bg-white rounded-2xl p-[clamp(16px,2vw,28px)] border border-[#006236]/10">
             <div className="flex items-center gap-2 mb-4">
               <BellIcon />
               <h3 className="text-[#006236] text-[clamp(14px,1.4vw,20px)] font-bold m-0">Announcements</h3>
             </div>
             <div className="flex flex-col gap-3">
-              {ANNOUNCEMENTS.map((a) => (
+              {announcements.length === 0 ? (
+                <p className="text-gray-400 text-sm m-0 py-4 text-center">No announcements yet.</p>
+              ) : announcements.map((a) => (
                 <div key={a.id} className="bg-white rounded-xl px-5 py-3.5">
                   <p className="text-[#006236] text-sm m-0 leading-relaxed">{a.text}</p>
-                  <p className="text-gray-400 text-xs m-0 mt-1.5">{a.time}</p>
+                  <p className="text-gray-400 text-xs m-0 mt-1.5">{new Date(a.created_at).toLocaleDateString()}</p>
                 </div>
               ))}
             </div>

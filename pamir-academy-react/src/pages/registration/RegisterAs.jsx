@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { apiPut } from "../../utils/api";
 import ApplyModal from "../../components/ApplyModal";
-import "../../styles/general.css";
-import "../../styles/registration/reg-as.css";
 
 const RegisterAs = () => {
   const navigate = useNavigate();
@@ -12,10 +10,8 @@ const RegisterAs = () => {
   const [selectedRole, setSelectedRole] = useState(null);
   const [showApplyModal, setShowApplyModal] = useState(false);
 
-  // Check if user is authenticated
   useEffect(() => {
     if (!currentUser) {
-      // User is not authenticated, show ApplyModal
       setShowApplyModal(true);
     }
   }, [currentUser]);
@@ -42,51 +38,32 @@ const RegisterAs = () => {
     navigate("/");
   };
 
-  // ---------------------------
-  // Reusable role button UI
-  // ---------------------------
   const RoleButton = ({ role, label }) => (
     <div
       onClick={() => handleRoleSelect(role)}
-      className={`
-        w-full px-6 py-3 sm:py-4 rounded-[25px] 
-        border-2 border-[#006236] cursor-pointer transition-all 
-
-        ${
-          selectedRole === role
-            ? "bg-[#006236] text-white scale-105"
-            : "bg-white text-[#006236] hover:bg-[#e8f5ee]"
-        }
-      `}
+      className={`w-full px-6 py-3 sm:py-4 rounded-full border-2 border-brand cursor-pointer transition-all text-center font-medium ${
+        selectedRole === role
+          ? "bg-brand text-white scale-[1.02]"
+          : "bg-white text-brand hover:bg-brand-light"
+      }`}
     >
       {label}
     </div>
   );
 
-  // Don't render registration form if user is not authenticated
   if (!currentUser) {
     return (
       <>
         {showApplyModal && (
           <ApplyModal
-            onClose={() => {
-              setShowApplyModal(false);
-              navigate("/");
-            }}
-            onSwitchToLogin={() => {
-              setShowApplyModal(false);
-              navigate("/");
-            }}
+            onClose={() => { setShowApplyModal(false); navigate("/"); }}
+            onSwitchToLogin={() => { setShowApplyModal(false); navigate("/"); }}
           />
         )}
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center bg-surface">
           <div className="text-center p-8">
-            <p className="text-xl font-bold text-[#006236] mb-4">
-              Please create an account first
-            </p>
-            <p className="text-gray-600">
-              You need to create an account before proceeding with registration.
-            </p>
+            <p className="text-xl font-bold text-brand mb-4">Please create an account first</p>
+            <p className="text-gray-600">You need to create an account before proceeding with registration.</p>
           </div>
         </div>
       </>
@@ -94,68 +71,45 @@ const RegisterAs = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Logo */}
-      <div className="logo-login-container-css">
-        <div className="logo-container-css">
-          <a href="/">
-            <img
-              className="pamir-academy-logo"
-              src="/logo/final_logo.svg"
-              alt="Pamir Academy Logo"
-            />
-          </a>
+    <div className="min-h-screen bg-surface">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-100 shadow-sm px-[clamp(24px,5vw,80px)] py-4">
+        <div className="h-[50px] flex items-center">
+          <a href="/"><img src="/logo/final_logo.svg" alt="Pamir Academy Logo" className="h-full w-auto object-contain" /></a>
         </div>
-      </div>
+      </header>
 
-      {/* Main Body */}
-      <div className="main-body-without-logo-apply-css">
-        <div className="inside-main-body-without-logo-apply-css w-full max-w-[1055px] px-4">
-          <div className="steps-form-container" style={{ marginTop: "100px" }}>
-            <div className="register-main-container-css w-full max-w-[800px] mx-auto px-4 sm:px-6 py-8 sm:py-10 min-h-[400px]">
-              <p className="reg-q-css text-center mb-6 sm:mb-8 text-lg sm:text-xl">
-                What do you want to register as?
-              </p>
+      {/* Main Content */}
+      <div className="max-w-[800px] mx-auto px-4 mt-16">
+        <div className="bg-white rounded-2xl shadow-card p-8 sm:p-10 min-h-[400px] flex flex-col items-center">
+          <p className="text-brand text-xl font-bold text-center mb-6 sm:mb-8">
+            What do you want to register as?
+          </p>
 
-              <div className="main-container-choice-css flex flex-col gap-3 sm:gap-4 w-full max-w-[500px] mx-auto">
-                <RoleButton role="student" label="Student" />
-                <RoleButton role="teacher" label="Teacher" />
-                <RoleButton role="employee" label="Employee" />
-              </div>
+          <div className="flex flex-col gap-3 sm:gap-4 w-full max-w-[500px] mx-auto">
+            <RoleButton role="student" label="Student" />
+            <RoleButton role="teacher" label="Teacher" />
+            <RoleButton role="employee" label="Employee" />
+          </div>
 
-              {/* Previous & Next */}
-              <div className="previous-next-container-css flex flex-row justify-between items-center gap-4 w-full max-w-[500px] mx-auto mt-8">
-                <button className="previous-btn-css" onClick={handlePrevious}>
-                  <div className="previous-icon-container">
-                    <img
-                      className="previous-icon"
-                      src="/registration-icons/prev-next/previous.png"
-                      alt="Previous"
-                    />
-                  </div>
-                  <p className="previous-text">PREVIOUS</p>
-                </button>
+          {/* Previous & Next */}
+          <div className="flex justify-between items-center w-full max-w-[500px] mx-auto mt-8">
+            <button
+              className="flex items-center gap-2 bg-brand text-white px-8 py-3 rounded-full border-none cursor-pointer font-medium text-sm hover:bg-brand-dark transition-colors"
+              onClick={handlePrevious}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+              PREVIOUS
+            </button>
 
-                <button
-                  className="next-btn-css next-btn-js"
-                  onClick={handleNext}
-                  disabled={!selectedRole}
-                  style={{
-                    backgroundColor: selectedRole ? "rgb(0,98,54)" : "gray",
-                    cursor: selectedRole ? "pointer" : "not-allowed",
-                  }}
-                >
-                  <p className="next-text">NEXT</p>
-                  <div className="next-icon-container">
-                    <img
-                      className="next-icon"
-                      src="/registration-icons/prev-next/next.png"
-                      alt="Next"
-                    />
-                  </div>
-                </button>
-              </div>
-            </div>
+            <button
+              className="flex items-center gap-2 bg-brand text-white px-8 py-3 rounded-full border-none cursor-pointer font-medium text-sm hover:bg-brand-dark transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              onClick={handleNext}
+              disabled={!selectedRole}
+            >
+              NEXT
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
           </div>
         </div>
       </div>
