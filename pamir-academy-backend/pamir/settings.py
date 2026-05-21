@@ -4,7 +4,7 @@ from datetime import timedelta
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env", override=True)
 
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-fallback")
 DEBUG = os.getenv("DEBUG", "True").lower() in ("true", "1", "yes")
